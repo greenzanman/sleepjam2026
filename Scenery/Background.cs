@@ -4,19 +4,26 @@ using System;
 public class Background : Control
 {
     private GameState mostRecentGamestate;
-    private ColorRect backgroundRect;
+
+    private ColorRect sleepBar;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        backgroundRect = GetNode<ColorRect>("BackgroundColor");
         UpdateGameState(GameManager.GetGameState());
+    
+        sleepBar = GetNode<ColorRect>("SleepRect");
     }
+
 
     public override void _Process(float delta)
     {
         GameState currentGameState = GameManager.GetGameState();
         if (currentGameState != mostRecentGamestate)
             UpdateGameState(currentGameState);
+
+        // Set size of sleep bar
+        sleepBar.RectSize = new Vector2(
+            1000 / GameManager.MAX_SLEEPCOUNT * GameManager.GetSleepCount(), 40);
     }
 
     
@@ -24,13 +31,10 @@ public class Background : Control
     {
         mostRecentGamestate = newGameState;
 
-        if (newGameState == GameState.Awake)
+        foreach (Control node in GetChildren())
         {
-            backgroundRect.Color = GameSettings.colorDark;
-        }
-        else
-        {
-            backgroundRect.Color = GameSettings.colorLight;
+            if (node is SleepRect sleepRect)
+                sleepRect.SetState(newGameState);
         }
     }
 }

@@ -14,19 +14,22 @@ public class GameManager : Node
 {
     public static GameManager Instance { get; private set; }
 
+    public static bool DebugDraw = true;
+
     private Player player;
 
     // Generic Game Settings
     private float timeDilation = 1;
     private bool isPaused = false; 
 
-    // Swimming settings
+    // Sleep settings
     private GameState gameState = GameState.Awake;
-    private float depth = 0; // Position of all objects offset by 'depth' to simulate sinking
-    private float sleepTimer = 0;
+    // Increments whenever a sheep jumps
+    private float sleepCount = 0;
+    public const int MAX_SLEEPCOUNT = 8;
 
-    // Enemy Settings
-    private HashSet<FishBase> fishes = new HashSet<FishBase>();
+    // Sheep
+    private HashSet<Sheep> sheep = new HashSet<Sheep>();
 
     public override void _Ready()
     {
@@ -37,24 +40,21 @@ public class GameManager : Node
 
     public override void _Process(float delta)
     {
+        ProcessSleep(delta);
         ProcessDebug(delta);
     }
 
 // MARK: Getters and Setters
     public static void SetPlayer( Player inPlayer ) { Instance.player = inPlayer; }
-    public static Vector2 GetPlayerWorldPosition() { return Instance.GetPlayerWorldPositionInternal(); }
-    public Vector2 GetPlayerWorldPositionInternal() { 
+    public static Player GetPlayerWorldPosition() { return Instance.GetPlayerInternal(); }
+    public Player GetPlayerInternal() { 
         if (player == null)
         {
             GD.PrintErr("Attempted to get player position before it's set");
-            return Vector2.Zero;
+            return null;
         }
-        return player.Position + Vector2.Down * depth; 
+        return player;
     }
-
-    public static void AddFish( FishBase inFish ) { Instance.fishes.Add(inFish); }
-    public static void RemoveFish( FishBase outFish ) { Instance.fishes.Remove(outFish); }
-    public static HashSet<FishBase> GetFishes() { return Instance.fishes; }
 
     public static bool GetPaused() { return Instance.isPaused; }
 
@@ -74,26 +74,54 @@ public class GameManager : Node
         // Do other stuff here. Send delegate alert to all nodes?
     }
 
-    public static float GetDepth() { return Instance.depth; }
-    public static void UpdateDepth(float change) { Instance.depth += change; }
+    public static void AddSheep( Sheep newSheep ) { Instance.sheep.Add(newSheep); }
+    public static void RemoveSheep( Sheep oldSheep ) { Instance.sheep.Remove(oldSheep); }
+    public static ref readonly HashSet<Sheep> GetSheep() { return ref Instance.sheep;} 
+
+// MARK: Sleep stuff
+    public static void IncrementSleepCount() { Instance.sleepCount++; }
+    public static float GetSleepCount() { return Instance.sleepCount; }
 
 // MARK: Process functions
-
+    private void ProcessSleep(float delta)
+    {
+        if (gameState == GameState.Awake)
+        {
+            if (sleepCount >= 8)
+            {
+                gameState = GameState.Dreaming;
+            }
+        }
+        else
+        {
+            sleepCount -= delta;
+            if (sleepCount <= 0)
+            {
+                sleepCount = 0;
+                gameState = GameState.Awake;
+            }
+        }
+    }
     private void ProcessDebug(float delta)
     {
         string pauseString = isPaused ? "\nPAUSED" : "";
-        DebugManager.SetDebugText($"Depth: {depth:0.00}" + pauseString);
+        DebugManager.SetDebugText(pauseString);
 
         if (Input.IsActionJustPressed("key_debugSwap"))
         {
-            GD.Print("Swapping Game State");
-            SetGameState( 1 - GetGameState() );
+            GD.Print("Incrementing sleep count");
+            sleepCount += 2;
         }
 
         if (Input.IsActionJustPressed("key_pause"))
         {
             GD.Print("Toggling pause");
             isPaused = !isPaused;
+        }
+
+        if (Input.IsActionJustPressed("key_debugDraw"))
+        {
+            DebugDraw = !DebugDraw;
         }
     }
 }

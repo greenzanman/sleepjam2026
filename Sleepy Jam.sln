@@ -1,0 +1,19 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sleepy Jam", "Sleepy Jam.csproj", "{1F75BB2F-598D-444D-86E6-EDC796D889CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{1F75BB2F-598D-444D-86E6-EDC796D889CB}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+EndGlobal

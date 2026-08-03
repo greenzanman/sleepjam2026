@@ -178,7 +178,7 @@ public class Sheep : SleepNode
                 if (wanderSide == 0)
                     wanderPoint = new Vector2(wallDistance, random.Next(wanderRange, GameSettings.ScreenHeight - wanderRange));
                 if (wanderSide == 2)
-                    wanderPoint = new Vector2(wallDistance, random.Next(GameSettings.ScreenWidth - wanderRange, GameSettings.ScreenHeight - wanderRange));
+                    wanderPoint = new Vector2(wallDistance, random.Next(GameSettings.ScreenHeight - wanderRange, GameSettings.ScreenHeight - wanderRange));
                 if (wanderSide == 1)
                     wanderPoint = new Vector2(random.Next(wanderRange, GameSettings.ScreenWidth - wanderRange), wallDistance);
                 if (wanderSide == 3)

@@ -26,7 +26,7 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 8;
+    public const int MAX_SLEEPCOUNT = 16;
 
     // Sheep
     private HashSet<Sheep> sheep = new HashSet<Sheep>();
@@ -96,7 +96,7 @@ public class GameManager : Node
     {
         if (gameState == GameState.Awake)
         {
-            if (sleepCount >= 8)
+            if (sleepCount >= MAX_SLEEPCOUNT)
             {
                 gameState = GameState.Dreaming;
             }

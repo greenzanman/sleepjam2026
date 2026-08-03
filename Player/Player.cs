@@ -50,21 +50,27 @@ public class Player : SleepNode
 
     protected override void ProcessDreaming(float delta)
     {
-        Sheep closestSheep = null;
-        float closestDistance = 50;
+        Demon closestDemon = null;
+        float closestDistance = 100;
         if (Input.IsActionJustPressed("key_action"))
         {
-            foreach (Sheep sheep in GameManager.GetSheep())
+            // TODO: Improve performance of all these iteration distance checks
+            foreach (Demon demon in GameManager.GetDemons())
             {
-                float distance = (sheep.Position - Position).Length();
+                if (!demon.IsAlive)
+                    continue;
+                    
+                float distance = (demon.Position - Position).Length();
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestSheep = sheep;
+                    closestDemon = demon;
                 }
             }
         }
-        if (closestSheep != null)
-            closestSheep.Bite();
+        if (closestDemon != null)
+        {
+            closestDemon.Bite();
+        }
     }
 }

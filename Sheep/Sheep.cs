@@ -12,7 +12,8 @@ public class Sheep : SleepNode
 
     private SheepState state;
 
-    private bool isDead;
+    public bool IsAlive = true;
+    public bool InPlay = true;
     private Random random = new Random();
 
     // Fleeing
@@ -43,7 +44,7 @@ public class Sheep : SleepNode
 
         GameManager.AddSheep(this);
     
-        isDead = false;
+        IsAlive = true;
     }
 
     public void Bark( Vector2 position)
@@ -58,14 +59,17 @@ public class Sheep : SleepNode
         }
     }
 
-    public void Bite()
+    public virtual void Bite()
     {
-        hurtTimer = 0.2f;
+        if (IsAlive)
+        {
+            hurtTimer = 0.25f;
+            IsAlive = false;
+        }
     }
 
-    protected virtual void Destroy()
+    public virtual void Destroy()
     {
-        GameManager.RemoveSheep(this);
         QueueFree();
     }
 
@@ -77,9 +81,15 @@ public class Sheep : SleepNode
 
     protected override void Process(float delta)
     {
-        if (isDead)
-            Destroy();
-
+        if (hurtTimer > 0)
+        {
+            hurtTimer -= delta;
+            Modulate = (int)(hurtTimer * 10) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+            if (hurtTimer <= 0)
+            {
+                InPlay = false;
+            }
+        }
         // TODO: Avoidance
 
 #if DEBUG
@@ -90,6 +100,7 @@ public class Sheep : SleepNode
     protected override void ProcessAwake(float delta)
     {
         bool wasInPen = InPen();
+        bool leftOfDivider = Position.x <= GameSettings.PenDivider;
 
         switch (state)
         {
@@ -128,6 +139,10 @@ public class Sheep : SleepNode
         {
             GameManager.IncrementSleepCount();
         }
+        else if (InPen() && wasInPen && leftOfDivider != (Position.x <= GameSettings.PenDivider))
+        {
+            GameManager.IncrementSleepCount();
+        }
     }
 
     private void ProcessIdle(float delta)
@@ -147,7 +162,7 @@ public class Sheep : SleepNode
                 idleTimer = distance / idleSpeed;
                 idleDirection = (idleGoal - Position) / distance; 
             }
-            else if (chosenMode <= 12 - idleTicksSpent)
+            else if (chosenMode <= 10 - idleTicksSpent)
             {
                 idleTimer = random.Next(4);
                 idleDirection = Vector2.Zero;
@@ -176,15 +191,6 @@ public class Sheep : SleepNode
 
     protected override void ProcessDreaming(float delta)
     {
-        hurtTimer -= delta;
-        if (hurtTimer >= 0)
-        {
-            Modulate = (int)(hurtTimer * 20) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
-        }
-        else
-        {
-            Modulate = GameSettings.colorDark;
-        }
     }
 
 #if DEBUG

@@ -16,4 +16,11 @@ public static class Utils
         if (amount >= dist || dist == 0) return end;
         return start + amount * (end - start) / dist;
     }
+
+    public static (Vector2, float) MoveTowardsReturnDistance(Vector2 start, Vector2 end, float amount)
+    {
+        float dist = (end - start).Length();
+        if (amount >= dist || dist == 0) return (end, 0);
+        return (start + amount * (end - start) / dist, dist - amount);
+    }
 }

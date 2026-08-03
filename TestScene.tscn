@@ -1,0 +1,89 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Player/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Scenery/Background.cs" type="Script" id=2]
+[ext_resource path="res://Utils/DebugManager.cs" type="Script" id=3]
+[ext_resource path="res://Sheep/Sheep.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenery/SleepRect.cs" type="Script" id=5]
+[ext_resource path="res://Demons/DemonSpawner.cs" type="Script" id=6]
+
+[node name="World" type="Node2D"]
+
+[node name="DemonSpawner" type="Node2D" parent="."]
+script = ExtResource( 6 )
+
+[node name="Background" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 2 )
+
+[node name="BackgroundColor" type="ColorRect" parent="Background"]
+margin_right = 1280.0
+margin_bottom = 720.0
+color = Color( 0.00784314, 0.0196078, 0.141176, 1 )
+script = ExtResource( 5 )
+
+[node name="PenOutside" type="ColorRect" parent="Background"]
+anchor_right = 0.5
+margin_left = 440.0
+margin_top = 235.0
+margin_right = 820.0
+margin_bottom = 485.0
+grow_horizontal = 2
+script = ExtResource( 5 )
+isFlipped = true
+
+[node name="PenInside" type="ColorRect" parent="Background"]
+anchor_right = 0.5
+margin_left = 450.0
+margin_top = 245.0
+margin_right = 810.0
+margin_bottom = 475.0
+grow_horizontal = 2
+color = Color( 0, 0, 0, 1 )
+script = ExtResource( 5 )
+
+[node name="SleepRect" type="ColorRect" parent="Background"]
+margin_left = 146.0
+margin_top = 60.0
+margin_right = 1146.0
+margin_bottom = 100.0
+script = ExtResource( 5 )
+isFlipped = true
+
+[node name="PenDivider" type="ColorRect" parent="Background"]
+anchor_right = 0.5
+margin_left = 635.0
+margin_top = 235.0
+margin_right = 625.0
+margin_bottom = 485.0
+grow_horizontal = 2
+script = ExtResource( 5 )
+isFlipped = true
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+position = Vector2( 240, 360 )
+
+[node name="DebugOverlay" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 3 )
+
+[node name="DebugText" type="RichTextLabel" parent="DebugOverlay"]
+margin_right = 195.0
+margin_bottom = 40.0
+
+[node name="Sheep" parent="." instance=ExtResource( 4 )]
+position = Vector2( 532, 380 )
+
+[node name="Sheep2" parent="." instance=ExtResource( 4 )]
+position = Vector2( 722, 296 )
+
+[node name="Sheep3" parent="." instance=ExtResource( 4 )]
+position = Vector2( 503, 305 )
+
+[node name="Sheep4" parent="." instance=ExtResource( 4 )]
+position = Vector2( 579, 333 )
+
+[node name="Sheep5" parent="." instance=ExtResource( 4 )]
+position = Vector2( 691, 375 )

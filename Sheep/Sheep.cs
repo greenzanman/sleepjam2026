@@ -18,7 +18,7 @@ public class Sheep : SleepNode
     private Random random = new Random();
     
     // All movement
-    private Area2D sheepArea;
+    // private Area2D sheepArea;
     private Node2D sheepSprite;
     private bool onFence = false;
 
@@ -26,16 +26,27 @@ public class Sheep : SleepNode
     Vector2 stateDirection;
     float stateSpeed;
 
+    // How close it can get to any edge
+    float overallPadding = 20;
+
     // Fleeing
-    float fleeSpeed = 50;
+    const float fleeSpeed = 120;
+    const float fleeCoolSpeed = 10;
+    const int fleeCoolSubradius = 10;
+    const float maxFleeDuration = 1.5f;
+    const float minFleeDuration = 0.4f;
+    const float fleeDistance = 250;
 
     // Idle
     float idleSpeed = 40;
     int idleTicksSpent = 0;
+    const int edgePadding = 50;
+    // How far from fence idle points must at least be
+    const int fencePadding = 50;
 
     // Wandering
     Vector2 wanderPoint;
-    float wanderSpeed = 80;
+    float wanderSpeed = 50;
     int wanderRange = 100;
 
     // Dreaming
@@ -48,7 +59,8 @@ public class Sheep : SleepNode
 
         GameManager.AddSheep(this);
         sheepSprite = GetNode<Node2D>("Sprite");
-        sheepArea = GetNode<Area2D>("SheepArea");
+        
+        // sheepArea = GetNode<Area2D>("SheepArea");
 
         EnterNewState(SheepState.Idle);
     
@@ -59,9 +71,15 @@ public class Sheep : SleepNode
     {
         Vector2 potentialFleeDirection = Position - position;
         float fleeLength = potentialFleeDirection.Length();
-        if (fleeLength < 250)
+        if (fleeLength < fleeDistance)
         {
-            stateTimer = 5 - fleeLength / 75;
+            float newStateTimer = maxFleeDuration - (maxFleeDuration - minFleeDuration) * fleeLength / fleeDistance;
+            // Add onto previous state if already fleeing (so a far bark doesn't cancel out a near one)
+            if (state == SheepState.Fleeing)
+                newStateTimer += stateTimer / 2;
+            
+            stateTimer = newStateTimer;
+
             stateDirection = Mathf.IsZeroApprox(fleeLength) ? Vector2.Left : potentialFleeDirection / fleeLength;
             EnterNewState(SheepState.Fleeing);
         }
@@ -126,25 +144,19 @@ public class Sheep : SleepNode
 
         // Perform movement
         stateTimer -= delta;
-        Position += delta * stateDirection * stateSpeed;
 
-        foreach (Area2D area in sheepArea.GetOverlappingAreas())
-        {
-            if (area.GetParent() is Sheep sheep)
-            {
-                Vector2 offset = sheep.Position - Position;
-                bool inView = offset.Dot(stateDirection) > 0;
+        // Keeping without bounds (maybe we don't want this; i.e. spook too far and they run off forever)
+        Vector2 newPosition = Position + delta * stateDirection * stateSpeed;
+        if (newPosition.x > GameSettings.ScreenWidth - overallPadding)
+            newPosition.x = GameSettings.ScreenWidth - overallPadding;
+        if (newPosition.x < overallPadding)
+            newPosition.x = overallPadding;
+        if (newPosition.y > GameSettings.ScreenHeight - overallPadding)
+            newPosition.y = GameSettings.ScreenHeight - overallPadding;
+        if (newPosition.y < overallPadding)
+            newPosition.y = overallPadding;
 
-                if (inView)
-                {
-                    // Align direction slightly more
-                    float distance = offset.Length();
-                    // Max is 100?
-                    if (distance < 40)
-                        Position += delta * (40 - distance) * offset / distance * -1;
-                }
-            }
-        }
+        Position = newPosition;
 
         if (stateTimer <= 0)
         {
@@ -182,28 +194,56 @@ public class Sheep : SleepNode
 
     private void EnterNewState( SheepState newState )
     {
+        SheepState previousState = state;
         state = newState;
         switch (state)
         {
             case SheepState.Idle:
-                idleTicksSpent = 0;
                 FindNextMovement();
 
                 stateSpeed = idleSpeed;
             break;
 
-            case SheepState.Wandering:              
-                int wanderSide = random.Next(4);
-                // Choose random wanter point on outside edges
-                int wallDistance = random.Next(wanderRange, wanderRange * 2);
-                if (wanderSide == 0)
-                    wanderPoint = new Vector2(wallDistance, random.Next(wanderRange, GameSettings.ScreenHeight - wanderRange));
-                if (wanderSide == 2)
-                    wanderPoint = new Vector2(wallDistance, random.Next(GameSettings.ScreenHeight - wanderRange, GameSettings.ScreenHeight - wanderRange));
-                if (wanderSide == 1)
-                    wanderPoint = new Vector2(random.Next(wanderRange, GameSettings.ScreenWidth - wanderRange), wallDistance);
-                if (wanderSide == 3)
-                    wanderPoint = new Vector2(random.Next(wanderRange, GameSettings.ScreenWidth - wanderRange), GameSettings.ScreenHeight - wallDistance);
+            case SheepState.Wandering:
+                // Idle ticks only reset between unique periods of wandering
+                idleTicksSpent = 0;
+            
+                // If in the pen, choose a side closer to where sheep currently is in
+                int wallDistance = random.Next(wanderRange * 3 / 2, wanderRange * 2);
+                
+                if (InPen())
+                {
+                    int wanderSide = random.Next(2);
+                    // Choose random wanter point on outside edges
+                    if (wanderSide == 0)
+                        wanderPoint = new Vector2(Position.x > GameSettings.ScreenWidth / 2 ? GameSettings.ScreenWidth - wallDistance : wallDistance, 
+                        GameSettings.ScreenHeight / 2 + random.Next(0, GameSettings.ScreenHeight / 2 - wanderRange) * (Position.y > GameSettings.ScreenHeight / 2 ? 1 : -1));
+                    if (wanderSide == 1)
+                        wanderPoint = new Vector2(GameSettings.ScreenWidth / 2 + 
+                            random.Next(0, GameSettings.ScreenWidth / 2 - wanderRange) * (Position.x > GameSettings.ScreenWidth / 2 ? 1 : -1), 
+                            Position.y > GameSettings.ScreenHeight / 2 ? GameSettings.ScreenHeight - wallDistance : wallDistance);
+                }
+                else // Otherwise, run to nearest wall, to avoid crossing over the fence again. Prioritizing left and right since those are 'easier' to herd
+                {
+                    if ( Position.x < GameSettings.PenLeft)
+                    {
+                        wanderPoint = new Vector2(wallDistance, random.Next(wanderRange, GameSettings.ScreenHeight - wanderRange));
+                    }
+                    else if ( Position.x > GameSettings.PenRight)
+                    {
+                        wanderPoint = new Vector2(GameSettings.ScreenWidth - wallDistance, random.Next(wanderRange, GameSettings.ScreenHeight - wanderRange));
+                    }
+                    else if ( Position.y > GameSettings.PenBottom)
+                    {
+                        wanderPoint = new Vector2(random.Next(wanderRange, GameSettings.ScreenWidth - wanderRange), 
+                            GameSettings.ScreenHeight - wallDistance);
+                    }
+                    else
+                    {
+                        wanderPoint = new Vector2(random.Next(wanderRange, GameSettings.ScreenWidth - wanderRange), wallDistance);   
+                    }
+                }
+
                 FindNextMovement();
 
                 stateSpeed = wanderSpeed;
@@ -222,18 +262,31 @@ public class Sheep : SleepNode
             case SheepState.Idle:
                 int chosenMode = random.Next(10);
 
-                if (chosenMode <= 5)
+                if (chosenMode <= 3 || onFence) // Never stand still on fence
                 {
                     // Find new idle location
-                    Vector2 idleGoal = new Vector2(random.Next(GameSettings.PenLeft, GameSettings.PenRight),
-                        random.Next(GameSettings.PenTop, GameSettings.PenBottom));
+                    Vector2 idleGoal = new Vector2(random.Next(GameSettings.PenLeft + edgePadding, GameSettings.PenRight - edgePadding),
+                        random.Next(GameSettings.PenTop + edgePadding, GameSettings.PenBottom - edgePadding));
+
+                    // Keep goal away from center fence
+                    if (Mathf.Abs(idleGoal.x - GameSettings.FenceX) < fencePadding)
+                    {
+                        idleGoal.x += idleGoal.x > GameSettings.FenceX ? 
+                            fencePadding :
+                            - fencePadding;
+                    }
+
                     float travelDistance = (idleGoal - Position).Length();
                     stateTimer = travelDistance / idleSpeed;
+
                     stateDirection = (idleGoal - Position) / travelDistance; 
+
+                    
                 }
-                else if (chosenMode <= 10 - idleTicksSpent)
+                else if (chosenMode <= 14 - idleTicksSpent)
                 {
-                    stateTimer = random.Next(4);
+                    // Wait for 1-4 seconds, and move again
+                    stateTimer = random.Next(1, 2);
                     stateDirection = Vector2.Zero;
                 }
                 else
@@ -252,7 +305,25 @@ public class Sheep : SleepNode
             break;
 
             case SheepState.Fleeing:
-                EnterNewState(InPen() ? SheepState.Idle : SheepState.Wandering);
+                if ( stateSpeed == fleeCoolSpeed || InPen())
+                {
+                    EnterNewState(InPen() ? SheepState.Idle : SheepState.Wandering);
+                }
+                else
+                {
+                    // Idle a bit at the end of fleeing if outside
+                    int subradiusX = random.Next(-fleeCoolSubradius, fleeCoolSubradius);
+                    subradiusX = subradiusX + 10 * Math.Sign(subradiusX);
+                    int subradiusY = random.Next(-fleeCoolSubradius, fleeCoolSubradius);
+                    subradiusY = subradiusY + 10 * Math.Sign(subradiusY);
+                    Vector2 fleeOffset = new Vector2(subradiusX, subradiusY);
+                    float fleeDistance = fleeOffset.Length();
+
+                    stateDirection = fleeOffset / fleeDistance;
+                    stateTimer = fleeDistance / fleeCoolSpeed;
+
+                    stateSpeed = fleeCoolSpeed;
+                }
             break;
         }
     }
@@ -262,6 +333,12 @@ public class Sheep : SleepNode
         return Position + stateDirection * stateTimer * stateSpeed;
     }
 
+    // Doesn't normalize speed, so can be weird
+    private void UpdateGoal( Vector2 newGoal )
+    {
+        stateDirection = (newGoal - Position) / stateTimer / stateSpeed;
+    }
+
     private void ProcessIdle(float delta)
     {
     }
@@ -269,7 +346,38 @@ public class Sheep : SleepNode
     private void ProcessFleeing(float delta)
     {
         // Fleeing decrements faster in the pen
-        stateTimer -= InPen() ? delta * 3 : 0;
+        stateTimer -= InPen() ? delta * 1.5f : 0;
+
+        // Herd behavior isn't that important; it might not even be desirable
+        // // Fleeing sheep tend towards other sheep in vision TODO
+        // foreach (Area2D area in sheepArea.GetOverlappingAreas())
+        // {
+        //     if (area.GetParent() is Sheep sheep && sheep.state == SheepState.Fleeing)
+        //     {
+        //         Vector2 offset = sheep.Position - Position;
+        //         bool inView = offset.Dot(stateDirection) > 0;
+
+        //         if (inView)
+        //         {
+        //             float distance = (sheep.Position - Position).Length();
+                    
+        //             // Align direction slightly more
+        //             Vector2 otherGoal = sheep.GetGoal();
+        //             Vector2 myGoal = GetGoal();
+
+        //             otherGoal += (Position - sheep.Position);
+
+        //             // Max is 80?
+        //             const float influenceDist = 80;
+        //             if (distance < influenceDist)
+        //             {   
+        //                 UpdateGoal(myGoal + (otherGoal - myGoal) * delta * (influenceDist - distance) / 
+        //                     (40 - 5 * stateTimer));
+        //             }
+                    
+        //         }
+        //     }
+        // }
     }
 
     private void ProcessWandering(float delta)

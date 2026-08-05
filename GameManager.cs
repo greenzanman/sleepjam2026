@@ -14,7 +14,7 @@ public class GameManager : Node
 {
     public static GameManager Instance { get; private set; }
 
-    public static bool DebugDraw = true;
+    public static bool DebugDraw = false;
 
     private Player player;
 
@@ -27,6 +27,7 @@ public class GameManager : Node
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
     public const int MAX_SLEEPCOUNT = 16;
+    private bool cyclePaused = false;
 
     // Sheep
     private HashSet<Sheep> sheep = new HashSet<Sheep>();
@@ -45,7 +46,9 @@ public class GameManager : Node
     {
         float trueDelta = delta * GetTimeDilation();
         ProcessSleep(trueDelta);
+#if DEBUG
         ProcessDebug(trueDelta);
+#endif
         ProcessCleanup(trueDelta);
     }
 
@@ -88,7 +91,12 @@ public class GameManager : Node
     public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;} 
 
 // MARK: Sleep stuff
-    public static void IncrementSleepCount() { Instance.sleepCount++; }
+    public static void IncrementSleepCount() { 
+#if DEBUG
+    if (!Instance.cyclePaused)
+#endif
+        Instance.sleepCount++; 
+    }
     public static float GetSleepCount() { return Instance.sleepCount; }
 
 // MARK: Process functions
@@ -103,6 +111,9 @@ public class GameManager : Node
         }
         else
         {
+#if DEBUG
+            if (cyclePaused) sleepCount += delta;
+#endif
             sleepCount -= delta;
             if (sleepCount <= 0)
             {
@@ -116,6 +127,11 @@ public class GameManager : Node
         string pauseString = isPaused ? "\nPAUSED" : "";
         DebugManager.SetDebugText(pauseString);
 
+        if (Input.IsActionJustPressed("key_debugPauseCycle"))
+        {
+            GD.Print("Toggling Cycle Pause");
+            cyclePaused = !cyclePaused;
+        }
         if (Input.IsActionJustPressed("key_debugIncrementSleep"))
         {
             GD.Print("Incrementing sleep count");

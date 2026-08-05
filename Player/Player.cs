@@ -9,6 +9,12 @@ public class Player : SleepNode
     private const float ACCELERATION = 5000;
     private const float MAXSPEED = 400;
 
+    // Awake state
+    const float barkCooldown = 0.5f;
+    const float fakeBarkBuffer = 0.05f; // Bar is slightly slower so it 'feels' better
+
+    float barkTimer = 0;
+
     public override void _Ready()
     {
         base._Ready();
@@ -18,6 +24,8 @@ public class Player : SleepNode
     protected override void Process(float delta)
     {
         ProcessMovement(delta);
+
+        Update(); // TODO: Build this into sprite or something
     }
 
     private void ProcessMovement(float delta)
@@ -39,12 +47,15 @@ public class Player : SleepNode
 
     protected override void ProcessAwake(float delta)
     {
-        if (Input.IsActionJustPressed("key_action"))
+        barkTimer = Mathf.Max(-10, barkTimer - delta);
+        if (barkTimer <= 0 && Input.IsActionJustPressed("key_action"))
         {
             foreach (Sheep sheep in GameManager.GetSheep())
             {
                 sheep.Bark(Position);
             }
+
+            barkTimer = barkCooldown;
         }
     }
 
@@ -72,5 +83,12 @@ public class Player : SleepNode
         {
             closestDemon.Bite();
         }
+    }
+
+    public override void _Draw()
+    {
+        base._Draw();
+        float fill = 60 * Mathf.Max(barkTimer + fakeBarkBuffer, 0) / (barkCooldown + fakeBarkBuffer);
+        DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), Colors.Purple, 5);
     }
 }

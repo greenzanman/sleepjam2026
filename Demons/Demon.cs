@@ -74,6 +74,9 @@ public partial class Demon : SleepNode
     protected override void ProcessAwake(float delta)
     {
         Modulate = GameSettings.colorInvisible;
+
+        if (targetSheep != null && !targetSheep.IsAlive)
+            targetSheep = null;
     }
 
     protected override void ProcessDreaming(float delta)

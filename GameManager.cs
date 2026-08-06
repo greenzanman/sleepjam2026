@@ -17,6 +17,7 @@ public class GameManager : Node
     public static bool DebugDraw = false;
 
     private Player player;
+    private float gameTime;
 
     // Generic Game Settings
     private float timeDilation = 1;
@@ -40,11 +41,13 @@ public class GameManager : Node
         Instance = this;
         timeDilation = 1;
         isPaused = false;
+        gameTime = 0;
     }
 
     public override void _Process(float delta)
     {
         float trueDelta = delta * GetTimeDilation();
+        gameTime += trueDelta;
         ProcessSleep(trueDelta);
 #if DEBUG
         ProcessDebug(trueDelta);
@@ -72,6 +75,11 @@ public class GameManager : Node
             return 0;
 
         return Instance.timeDilation;
+    }
+
+    public static float GetGameTime()
+    {
+        return Instance.gameTime;
     }
     
     public static GameState GetGameState() {return Instance.gameState;}

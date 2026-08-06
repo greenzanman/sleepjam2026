@@ -4,6 +4,7 @@ public partial class Demon : SleepNode
 {
     public bool IsAlive = true;
     public bool InPlay = true;
+    protected int spawnSide = 0;
     protected float hp = 2;
     protected float hitTimer = 0;
 
@@ -21,6 +22,11 @@ public partial class Demon : SleepNode
         InPlay = true;
 
         hp = 2;
+    }
+
+    public virtual void Initialize(int side)
+    {
+        spawnSide = side;
     }
 
     public void Destroy()
@@ -44,6 +50,9 @@ public partial class Demon : SleepNode
         float closestDistance = Mathf.Inf;
         foreach (Sheep sheep in GameManager.GetSheep())
         {
+            if (!sheep.IsAlive)
+                continue;
+                
             float distance = (sheep.Position - Position).Length();
             if (distance < closestDistance)
             {
@@ -65,7 +74,21 @@ public partial class Demon : SleepNode
 
     protected override void Process(float delta)
     {
+        if (targetSheep != null && !targetSheep.IsAlive)
+            targetSheep = null;
 
+            
+        if (hitTimer > 0)
+        {
+            hitTimer -= delta;
+            Modulate = (int)(hitTimer * 10) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+        }
+        else
+        {
+            // When dead and not hit flashing, remove from play
+            if (!IsAlive)
+                InPlay = false;
+        }
 #if DEBUG
         Update();
 #endif
@@ -74,19 +97,11 @@ public partial class Demon : SleepNode
     protected override void ProcessAwake(float delta)
     {
         Modulate = GameSettings.colorInvisible;
-
-        if (targetSheep != null && !targetSheep.IsAlive)
-            targetSheep = null;
     }
 
     protected override void ProcessDreaming(float delta)
     {
-        if (hitTimer > 0)
-        {
-            hitTimer -= delta;
-            Modulate = (int)(hitTimer * 10) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
-        }
-        else
+        if (hitTimer <= 0)
         {
             // Track nearest sheep
             retargetTimer -= delta;
@@ -97,32 +112,21 @@ public partial class Demon : SleepNode
 
             if (targetSheep != null)
             {
-                if (targetSheep.IsAlive)
+                float dist = 0;
+                (Position, dist) = Utils.MoveTowardsReturnDistance(Position,
+                    targetSheep.Position, travelSpeed * delta);
+                if (dist < killDistance)
                 {
-                    float dist = 0;
-                    (Position, dist) = Utils.MoveTowardsReturnDistance(Position,
-                        targetSheep.Position, travelSpeed * delta);
-                    if (dist < killDistance)
-                    {
-                        // TODO: Clean this up a bit
-                        targetSheep.Bite();
-                    }
-                }
-                else
-                {
-                    targetSheep = null;
+                    // TODO: Clean this up a bit
+                    targetSheep.Bite();
                 }
             }
 
             Modulate = GameSettings.colorDark;
-
-            // When dead and not hit flashing, remove from play
-            if (!IsAlive)
-                InPlay = false;
         }   
     }
 
-    // Always lighColor
+    // Always lightColor
     protected override void UpdateGameState(GameState newGameState)
     {
         Retarget();

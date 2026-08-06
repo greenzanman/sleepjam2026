@@ -5,7 +5,8 @@ public class DemonSneaker : Demon
 {
 	private Polygon2D sheepPolygon { get; set; }
 	private Node2D demonPolygons { get; set; }
-	private bool canMove { get; set; } = true;
+	private bool mutated = false;
+	public GameState PrevGameState {private get; set; }
 	
 	public override void _Ready() 
 	{
@@ -13,8 +14,6 @@ public class DemonSneaker : Demon
 		demonPolygons =  GetNode<Node2D>("DemonPolygons");
 		sheepPolygon = GetNode<Polygon2D>("SheepPolygon");
 		travelSpeed = 15;
-		
-		GD.Print("Hello:", sheepPolygon, demonPolygons);
 		
 		// Modulate = Colors.White;
 		sheepPolygon.Modulate = GameSettings.colorLight;
@@ -28,17 +27,20 @@ public class DemonSneaker : Demon
 		
 		if (newGameState == GameState.Awake)
 		{
-			GD.Print("YOOO");
 			//Modulate = GameSettings.colorLight;
-			sheepPolygon.Modulate = GameSettings.colorLight;
-			demonPolygons.Visible = true;
+			Disguise();
+			
+			if(PrevGameState == GameState.Dreaming) 
+			{
+				Mutate();
+			}
 		}
-		else
+		else if (mutated == false)
 		{
 			// Modulate = GameSettings.colorDark;
-			sheepPolygon.Modulate = GameSettings.colorDark;
-			demonPolygons.Visible = false;
+			NoDisguise();
 		}
+		PrevGameState = newGameState;
 	}
 	
 	protected override void ProcessAwake(float delta)
@@ -48,8 +50,6 @@ public class DemonSneaker : Demon
 
 	protected override void ProcessDreaming(float delta)
 	{
-		GD.Print("INPLAY?", InPlay);
-		GD.Print("ALIVE?", IsAlive);
 		if (hitTimer > 0)
 		{
 			hitTimer -= delta;
@@ -83,6 +83,10 @@ public class DemonSneaker : Demon
 				{
 					// TODO: Clean this up a bit
 					targetSheep.Bite();
+					if(!targetSheep.IsAlive) {
+						InPlay = false;
+						IsAlive = false;
+					}
 				}
 			}
 			else
@@ -90,5 +94,24 @@ public class DemonSneaker : Demon
 				targetSheep = null;
 			}
 		}	
+	}
+	
+	private void Disguise() 
+	{
+		sheepPolygon.Modulate = GameSettings.colorLight;
+		demonPolygons.Visible = true;
+	}
+	
+	private void NoDisguise() 
+	{
+		sheepPolygon.Modulate = GameSettings.colorDark;
+		demonPolygons.Visible = false;
+	}
+	
+	private void Mutate() 
+	{
+		mutated = true;
+		travelSpeed *= 30;
+		Scale *= 3;
 	}
 }

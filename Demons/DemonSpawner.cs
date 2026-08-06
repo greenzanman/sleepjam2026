@@ -39,13 +39,15 @@ public class DemonSpawner : SleepNode
 				newDemon.Position = spawnPoint;
 				GetTree().Root.AddChild(newDemon);
 		}
-		if (newGameState == GameState.Dreaming && swaps > 0)
+		if (newGameState == GameState.Awake && swaps > 1)
 		{
 				Vector2 spawnPoint = GetEdgeSpawnpoint();
 
-				Demon newDemon = demonSneakerScene.Instance<Demon>();
+				DemonSneaker newDemon = demonSneakerScene.Instance<DemonSneaker>();
 				newDemon.Position = spawnPoint;
-				GetTree().Root.AddChild(newDemon);
+				newDemon.PrevGameState = newGameState;
+				Demon d = newDemon;
+				GetTree().Root.AddChild(d);
 		}
 	}
 

@@ -4,6 +4,8 @@ public partial class Demon : SleepNode
 {
     public bool IsAlive = true;
     public bool InPlay = true;
+    // Can this enemy be attacked
+    public bool Bitable = true;
     protected int spawnSide = 0;
     protected float hp = 2;
     protected float hitTimer = 0;
@@ -40,7 +42,7 @@ public partial class Demon : SleepNode
         hitTimer = 0.35f;
         if (hp <= 0)
         {
-            IsAlive = false;
+            Die();
         }
     }
 
@@ -50,7 +52,8 @@ public partial class Demon : SleepNode
         float closestDistance = Mathf.Inf;
         foreach (Sheep sheep in GameManager.GetSheep())
         {
-            if (!sheep.IsAlive)
+            // Don't target dead or cursed sheep
+            if (!sheep.IsAlive || sheep.cursed)
                 continue;
                 
             float distance = (sheep.Position - Position).Length();
@@ -74,7 +77,7 @@ public partial class Demon : SleepNode
 
     protected override void Process(float delta)
     {
-        if (targetSheep != null && !targetSheep.IsAlive)
+        if (targetSheep != null && (targetSheep.cursed || !targetSheep.IsAlive))
             targetSheep = null;
 
             
@@ -87,16 +90,24 @@ public partial class Demon : SleepNode
         {
             // When dead and not hit flashing, remove from play
             if (!IsAlive)
+            {
+                OnDeath();
                 InPlay = false;
+            }
         }
 #if DEBUG
         Update();
 #endif
     }
 
+    // Sets hp to 0 and IsAlive to false; also calls OnDeath()
+    protected virtual void Die() { hp = 0; IsAlive = false; OnDeath(); }
+    
+    // Death logic
+    protected virtual void OnDeath() {}
     protected override void ProcessAwake(float delta)
     {
-        Modulate = GameSettings.colorInvisible;
+        // Modulate = GameSettings.colorInvisible;
     }
 
     protected override void ProcessDreaming(float delta)
@@ -119,6 +130,9 @@ public partial class Demon : SleepNode
                 {
                     // TODO: Clean this up a bit
                     targetSheep.Bite();
+
+                    // Long pause after killing a sheep, so it doesn't chain
+                    retargetTimer = 2;
                 }
             }
 

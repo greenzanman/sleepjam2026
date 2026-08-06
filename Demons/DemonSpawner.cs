@@ -4,6 +4,7 @@ using System;
 public class DemonSpawner : SleepNode
 {
     private PackedScene demonBasicScene;
+    private PackedScene demonSheepScene;
     private PackedScene demonCreeperScene;
     private int swaps; // How many day/night swaps have happened
     private Random random = new Random();
@@ -14,6 +15,7 @@ public class DemonSpawner : SleepNode
     public override void _Ready()
     {
         demonBasicScene = GD.Load<PackedScene>("res://Demons/DemonBasic.tscn");
+        demonSheepScene = GD.Load<PackedScene>("res://Demons/DemonSheep.tscn");
         demonCreeperScene = GD.Load<PackedScene>("res://Demons/DemonCreeper.tscn");
         swaps = 0;
         previousSleepiness = 0;
@@ -66,7 +68,7 @@ public class DemonSpawner : SleepNode
         {
                 (Vector2 spawnPoint, int side) = GetEdgeSpawnpoint();
 
-                Demon newDemon = demonCreeperScene.Instance<Demon>();
+                Demon newDemon = demonSheepScene.Instance<Demon>();
                 newDemon.Initialize(side);
                 newDemon.Position = spawnPoint;
                 GetTree().Root.AddChild(newDemon);

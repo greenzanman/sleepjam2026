@@ -68,7 +68,7 @@ public class Player : SleepNode
             // TODO: Improve performance of all these iteration distance checks
             foreach (Demon demon in GameManager.GetDemons())
             {
-                if (!demon.IsAlive)
+                if (!demon.IsAlive || !demon.Bitable)
                     continue;
                     
                 float distance = (demon.Position - Position).Length();

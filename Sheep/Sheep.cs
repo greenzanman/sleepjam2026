@@ -15,6 +15,12 @@ public class Sheep : SleepNode
 
     public bool IsAlive = true;
     public bool InPlay = true;
+
+    // Being cursed
+    public bool cursed = false; // Will not be attacked by demons
+    private Node2D cursedIndicator;
+
+    
     private Random random = new Random();
     
     // All movement
@@ -59,8 +65,7 @@ public class Sheep : SleepNode
 
         GameManager.AddSheep(this);
         sheepSprite = GetNode<Node2D>("Sprite");
-        
-        // sheepArea = GetNode<Area2D>("SheepArea");
+        cursedIndicator = GetNode<Node2D>("CursedIndicator");
 
         EnterNewState(SheepState.Idle);
     
@@ -99,7 +104,8 @@ public class Sheep : SleepNode
         QueueFree();
     }
 
-    protected virtual bool InPen()
+
+    public bool InPen()
     {
         return Position.x > GameSettings.PenLeft && Position.x < GameSettings.PenRight &&
             Position.y > GameSettings.PenTop && Position.y < GameSettings.PenBottom;
@@ -117,7 +123,9 @@ public class Sheep : SleepNode
                 InPlay = false;
             }
         }
-        // TODO: Avoidance
+
+        // Cursed indicator
+        cursedIndicator.Visible = cursed;
 
 #if DEBUG
         Update();
@@ -164,6 +172,12 @@ public class Sheep : SleepNode
             FindNextMovement();
         }
     
+        // Updating cursed indicator
+        if (cursed)
+        {
+            cursedIndicator.Position = sheepSprite.Position + Vector2.Up * 50;
+        }
+
         // Checking fence state
         bool nowOnFence = false;
         foreach (Fence fence in Fence.Fences)
@@ -347,37 +361,6 @@ public class Sheep : SleepNode
     {
         // Fleeing decrements faster in the pen
         stateTimer -= InPen() ? delta * 1.5f : 0;
-
-        // Herd behavior isn't that important; it might not even be desirable
-        // // Fleeing sheep tend towards other sheep in vision TODO
-        // foreach (Area2D area in sheepArea.GetOverlappingAreas())
-        // {
-        //     if (area.GetParent() is Sheep sheep && sheep.state == SheepState.Fleeing)
-        //     {
-        //         Vector2 offset = sheep.Position - Position;
-        //         bool inView = offset.Dot(stateDirection) > 0;
-
-        //         if (inView)
-        //         {
-        //             float distance = (sheep.Position - Position).Length();
-                    
-        //             // Align direction slightly more
-        //             Vector2 otherGoal = sheep.GetGoal();
-        //             Vector2 myGoal = GetGoal();
-
-        //             otherGoal += (Position - sheep.Position);
-
-        //             // Max is 80?
-        //             const float influenceDist = 80;
-        //             if (distance < influenceDist)
-        //             {   
-        //                 UpdateGoal(myGoal + (otherGoal - myGoal) * delta * (influenceDist - distance) / 
-        //                     (40 - 5 * stateTimer));
-        //             }
-                    
-        //         }
-        //     }
-        // }
     }
 
     private void ProcessWandering(float delta)

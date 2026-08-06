@@ -36,8 +36,7 @@ public class DemonBasic : Demon
         {
             // Use death logic for now
             hitTimer = 0.75f;
-            hp = 0;
-            IsAlive = false;
+            Die();
         }
 
         // Hode spawn indicator

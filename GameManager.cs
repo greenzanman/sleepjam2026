@@ -142,13 +142,13 @@ public class GameManager : Node
         }
         if (Input.IsActionJustPressed("key_debugIncrementSleep"))
         {
-            GD.Print("Incrementing sleep count");
+            //GD.Print("Incrementing sleep count");
             sleepCount += 2;
         }
 
         if (Input.IsActionJustPressed("key_debugDecrementSleep"))
         {
-            GD.Print("Decrementing sleep count");
+            //GD.Print("Decrementing sleep count");
             sleepCount = Mathf.Max(0, sleepCount - 2);
         }
 

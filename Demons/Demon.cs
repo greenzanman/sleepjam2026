@@ -84,7 +84,7 @@ public partial class Demon : SleepNode
         if (hitTimer > 0)
         {
             hitTimer -= delta;
-            Modulate = (int)(hitTimer * 10) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+            Modulate = (int)(hitTimer * GameSettings.FlashRate) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
         }
         else
         {
@@ -126,6 +126,14 @@ public partial class Demon : SleepNode
                 float dist = 0;
                 (Position, dist) = Utils.MoveTowardsReturnDistance(Position,
                     targetSheep.Position, travelSpeed * delta);
+
+                // A bit messy, but better than copying code into DemonClose.cs
+                if (this is DemonClose demonClose)
+                {
+                    if (dist < DemonClose.vulnerabilityDistance)
+                        Bitable = true;
+                }
+
                 if (dist < killDistance)
                 {
                     // TODO: Clean this up a bit

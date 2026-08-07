@@ -24,7 +24,7 @@ public class DemonSheep : Demon
         List<Sheep> validSheep = new List<Sheep>();
         // Prioritize sheep in pen (maybe also prioritize not wandering? rare occurence)
         foreach (Sheep sheep in GameManager.GetSheep())
-            if (sheep.IsAlive && !sheep.cursed && sheep.InPen())
+            if (sheep.IsAlive && !sheep.cursed && !sheep.rebellious && sheep.InPen())
                 validSheep.Add(sheep);
 
         // Backup, choose a wandering sheep

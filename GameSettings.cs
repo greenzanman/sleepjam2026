@@ -15,4 +15,5 @@ public static class GameSettings
     public static int PenTop = 345;
     public static int PenBottom = 615;
     public static int FenceX = 640;
+    public static int FlashRate = 10;
 }

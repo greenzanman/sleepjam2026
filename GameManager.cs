@@ -27,7 +27,8 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 16;
+    public const int MAX_SLEEPCOUNT = 24;
+    private float wakeRate = 1; // Increases once there are no demons
     private bool cyclePaused = false;
 
     
@@ -117,11 +118,11 @@ public class GameManager : Node
     public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;}
 
 // MARK: Sleep stuff
-    public static void IncrementSleepCount() { 
+    public static void IncrementSleepCount( int amount = 1) { 
 #if DEBUG
     if (!Instance.cyclePaused)
 #endif
-        Instance.sleepCount++; 
+        Instance.sleepCount = Math.Min(Instance.sleepCount + amount, MAX_SLEEPCOUNT); 
     }
     public static float GetSleepCount() { return Instance.sleepCount; }
 
@@ -134,6 +135,7 @@ public class GameManager : Node
             {
                 gameState = GameState.Dreaming;
                 StatKeeper.NumSleepInstances += 1;
+                wakeRate = 1;
             }
         }
         else
@@ -141,12 +143,11 @@ public class GameManager : Node
 #if DEBUG
             if (cyclePaused) sleepCount += delta;
 #endif
-            if (demonCount > 0) {
-                sleepCount -= delta;
-            } else {
-                sleepCount -= delta * noDemonAwakeFactor;
-            }
-            
+            sleepCount -= delta * wakeRate;
+
+            // Sleep decreases faster if nothing to do
+            if (demons.Count == 0)
+                wakeRate += delta;
             if (sleepCount <= 0)
             {
                 sleepCount = 0;

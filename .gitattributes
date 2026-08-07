@@ -1,0 +1,46 @@
+# Force LF line endings for all text files, regardless of OS/editor settings
+* text=auto eol=lf
+
+# Godot-specific text files
+*.gd text eol=lf
+*.gdshader text eol=lf
+*.tscn text eol=lf
+*.tres text eol=lf
+*.godot text eol=lf
+*.cfg text eol=lf
+*.import text eol=lf
+project.godot text eol=lf
+export_presets.cfg text eol=lf
+
+# Common text/config files
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files — do not touch line endings, git should never diff these as text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.webp binary
+*.ogg binary
+*.wav binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.glb binary
+*.gltf binary
+*.fbx binary
+*.obj binary
+*.blend binary
+*.zip binary
+*.pck binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary

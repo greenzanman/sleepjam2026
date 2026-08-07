@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://UI/Godot-Fontpack/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/connection_ii/ConnectionII.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://UI/LoseScreen.cs" type="Script" id=2]
 [ext_resource path="res://TestScene.tscn" type="PackedScene" id=3]
 [ext_resource path="res://UI/MenuScene.tscn" type="PackedScene" id=4]
+[ext_resource path="res://icon.png" type="Texture" id=5]
+[ext_resource path="res://frolic_over_fence-loop.tres" type="Animation" id=6]
 
 [sub_resource type="DynamicFont" id=1]
 size = 43
@@ -62,5 +64,18 @@ margin_top = -35.0
 margin_right = 47.0
 custom_fonts/font = SubResource( 2 )
 text = "MENU"
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
+position = Vector2( 1408, 325 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
+autoplay = "frolic_over_fence-loop"
+reset_on_save = false
+anims/frolic_over_fence-loop = ExtResource( 6 )
+
+[node name="Sprite" type="Sprite" parent="Node2D/KinematicBody2D"]
+texture = ExtResource( 5 )
 
 [connection signal="pressed" from="RetryButton" to="." method="_on_RetryButton_pressed"]

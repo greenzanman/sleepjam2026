@@ -1,22 +1,30 @@
 using Godot;
 using System;
 
+// TODO: This code is all very temp
 public class DemonSpawner : SleepNode
 {
     private PackedScene demonBasicScene;
+    private PackedScene demonCloseScene;
     private PackedScene demonSheepScene;
+    private PackedScene sheepScene;
     private PackedScene demonCreeperScene;
     private int swaps; // How many day/night swaps have happened
     private Random random = new Random();
+    public static DemonSpawner Instance { get; private set; }
 
     // Tieing to sleep
     private int previousSleepiness; // For callbacks on sleepiness increases
 
     public override void _Ready()
     {
+        Instance = this;
+
         demonBasicScene = GD.Load<PackedScene>("res://Demons/DemonBasic.tscn");
+        demonCloseScene = GD.Load<PackedScene>("res://Demons/DemonClose.tscn");
         demonSheepScene = GD.Load<PackedScene>("res://Demons/DemonSheep.tscn");
         demonCreeperScene = GD.Load<PackedScene>("res://Demons/DemonCreeper.tscn");
+        sheepScene = GD.Load<PackedScene>("res://Sheep/Sheep.tscn");
         swaps = 0;
         previousSleepiness = 0;
 
@@ -39,18 +47,54 @@ public class DemonSpawner : SleepNode
         }
     }
 
+    public void SpawnBasicDemon()
+    {
+        (Vector2 spawnPoint, int side) = GetEdgeSpawnpoint();
+
+            Demon newDemon;
+            
+            newDemon = random.Next(3) == 0 ? demonCloseScene.Instance<Demon>() : 
+                demonBasicScene.Instance<Demon>();
+            newDemon.Initialize(side);
+            newDemon.Position = spawnPoint;
+            GetTree().Root.AddChild(newDemon);
+    }
+
     // Callbacks when hitting specific sleepiness
     private void OnSleepiness(int value)
     {
         // On intervals TODO: flesh this out
         if (value < GameManager.MAX_SLEEPCOUNT && value % (GameManager.MAX_SLEEPCOUNT / 4) == 0)
         {
-            (Vector2 spawnPoint, int side) = GetEdgeSpawnpoint();
+            SpawnBasicDemon();
+        }
 
-            Demon newDemon = demonBasicScene.Instance<Demon>();
-            newDemon.Initialize(side);
-            newDemon.Position = spawnPoint;
-            GetTree().Root.AddChild(newDemon);
+        if ( value == GameManager.MAX_SLEEPCOUNT / 3)
+        {
+            (Vector2 spawnPoint, _) = GetEdgeSpawnpoint();
+
+            // TODO: Don't spawn near any existing creepers
+            foreach (Demon demon in GameManager.GetDemons())
+            {
+                if (demon is DemonCreeper)
+                {
+                    // Flip spawn side from creeper
+                    if (Mathf.Sign(demon.Position.x - GameSettings.ScreenWidth / 2)
+                     == Mathf.Sign(spawnPoint.x - GameSettings.ScreenWidth / 2))
+                        spawnPoint.x = GameSettings.ScreenWidth - spawnPoint.x;
+
+                    if (Mathf.Sign(demon.Position.y - GameSettings.ScreenHeight / 2)
+                     == Mathf.Sign(spawnPoint.y - GameSettings.ScreenHeight / 2))
+                        spawnPoint.y = GameSettings.ScreenHeight - spawnPoint.y;
+
+                    break; // Once there's more than one creeper, sucks to suck
+                }
+            }
+
+            Sheep newSheep = sheepScene.Instance<Sheep>();
+            newSheep.Position = spawnPoint;
+            newSheep.rebellious = true;
+            GetTree().Root.AddChild(newSheep);
         }
     }
 

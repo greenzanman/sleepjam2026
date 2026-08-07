@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Runtime.InteropServices;
 
 public class Sheep : SleepNode
 {
@@ -65,6 +64,17 @@ public class Sheep : SleepNode
     const float barkMinSpeedScale = 0.2f;
     float fleeDuration = 0;
 
+    // Bark consecutive speedup
+    // - more impulse on sheep if bark again on it
+    float currentFleeTopSpeed = fleeSpeed;  // this will be flee speed after modifed by combo
+    float currentFleeAcceleration = movementAcceleration;
+    const float barkComboWindow = 1.0f;
+    const float barkComboSpeedMultiplier = 1.1f;
+    const float barkComboAccelerationMultiplier = 1.2f;
+    const float barkComboImpulseFactor = 0.45f;
+    float barkComboTimer = 0;
+    int barkChainCount = 0;
+
     // Idle
     float idleSpeed = 40;
     int idleTicksSpent = 0;
@@ -109,6 +119,29 @@ public class Sheep : SleepNode
         float fleeLength = potentialFleeDirection.Length();
         if (fleeLength < fleeDistance)
         {
+            if (barkComboTimer > 0)
+            {
+                barkChainCount = barkChainCount + 1;
+            }
+            else
+            {
+                barkChainCount = 1;
+            }
+            barkComboTimer = barkComboWindow;
+
+            bool isComboBark = barkChainCount >= 2;
+            if (isComboBark)
+            {
+                currentFleeTopSpeed = fleeSpeed * barkComboSpeedMultiplier;
+                currentFleeAcceleration = movementAcceleration * barkComboAccelerationMultiplier;
+            }
+            else
+            {
+                // base movement if not combo
+                currentFleeTopSpeed = fleeSpeed;
+                currentFleeAcceleration = movementAcceleration;
+            }
+
             float newStateTimer = maxFleeDuration - (maxFleeDuration - minFleeDuration) * fleeLength / fleeDistance;
             // Add onto previous state if already fleeing (so a far bark doesn't cancel out a near one)
             if (state == SheepState.Fleeing)
@@ -119,6 +152,14 @@ public class Sheep : SleepNode
 
             stateDirection = Mathf.IsZeroApprox(fleeLength) ? Vector2.Left : potentialFleeDirection / fleeLength;
             EnterNewState(SheepState.Fleeing);
+
+            if (isComboBark)
+            {
+                currentVelocity += stateDirection * (currentFleeTopSpeed * barkComboImpulseFactor);
+                float maxComboVelocity = currentFleeTopSpeed * 1.35f;
+                if (currentVelocity.LengthSquared() > maxComboVelocity * maxComboVelocity)
+                    currentVelocity = currentVelocity.Normalized() * maxComboVelocity;
+            }
         }
     }
 
@@ -189,6 +230,8 @@ public class Sheep : SleepNode
 
     protected override void ProcessAwake(float delta)
     {
+        barkComboTimer = Mathf.Max(0, barkComboTimer - delta);
+
         switch (state)
         {
             // Either move to another spot in the pen, stand still, or start wandering
@@ -216,7 +259,8 @@ public class Sheep : SleepNode
         bool isSpeedingUp = targetVelocity.LengthSquared() > currentVelocity.LengthSquared();
         bool needsFastResponse = isAbouttaFlip || isSpeedingUp;
        
-        float responseRate = needsFastResponse ? movementAcceleration : movementDeceleration;
+        float currentAcceleration = state == SheepState.Fleeing ? currentFleeAcceleration : movementAcceleration;
+        float responseRate = needsFastResponse ? currentAcceleration : movementDeceleration;
         float decay = Mathf.Exp(-responseRate * delta);
         float velocityBlend = 1f - decay;
         currentVelocity = currentVelocity.LinearInterpolate(targetVelocity, velocityBlend);
@@ -369,7 +413,7 @@ public class Sheep : SleepNode
 
 
             case SheepState.Fleeing:
-                stateSpeed = fleeSpeed;
+                stateSpeed = currentFleeTopSpeed;
                 break;
         }
     }
@@ -471,7 +515,7 @@ public class Sheep : SleepNode
             // see my comment in the whiteboard
             float remainingRatio = Mathf.Clamp(stateTimer / fleeDuration, 0, 1);
             float easeOutFactor = Mathf.Max(barkMinSpeedScale, Mathf.Pow(remainingRatio, barkEaseOutPower));
-            stateSpeed = Mathf.Lerp(fleeSettleSpeed, fleeSpeed, easeOutFactor);
+            stateSpeed = Mathf.Lerp(fleeSettleSpeed, currentFleeTopSpeed, easeOutFactor);
         }
 
         // Fleeing decrements faster in the pen

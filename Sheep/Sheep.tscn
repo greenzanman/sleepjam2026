@@ -8,7 +8,7 @@ resource_name = "die"
 loop = true
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -25,7 +25,7 @@ resource_name = "jump"
 length = 0.166708
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -43,7 +43,7 @@ length = 0.583375
 loop = true
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -61,7 +61,7 @@ length = 0.583375
 loop = true
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -78,7 +78,7 @@ resource_name = "sleep"
 loop = true
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -95,7 +95,7 @@ resource_name = "stand"
 length = 0.0417083
 step = 0.0416667
 tracks/0/type = "value"
-tracks/0/path = NodePath("SheepSprite:frame")
+tracks/0/path = NodePath("Sprite:frame")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -110,25 +110,23 @@ tracks/0/keys = {
 [node name="Sheep" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="SheepSprite" type="Sprite" parent="."]
+[node name="Sprite" type="Sprite" parent="."]
 scale = Vector2( 0.2, 0.2 )
 texture = ExtResource( 2 )
 offset = Vector2( 0, -60 )
 hframes = 4
 vframes = 4
 
-[node name="Sprite" type="Polygon2D" parent="."]
-visible = false
-polygon = PoolVector2Array( 15, 12, 12, -12, -12, -12, -15, 12 )
-
 [node name="RebelliousIndicator" type="Polygon2D" parent="Sprite"]
 visible = false
-position = Vector2( 0, -50 )
+position = Vector2( 0, -250 )
+scale = Vector2( 5, 5 )
 polygon = PoolVector2Array( 16, -16, 0, 16, -16, -16, 0, -8 )
 
 [node name="CursedIndicator" type="Polygon2D" parent="Sprite"]
 visible = false
-position = Vector2( 0, -50 )
+position = Vector2( 0, -250 )
+scale = Vector2( 5, 5 )
 polygon = PoolVector2Array( 12, 0, 0, 16, -12, 0, 0, -16 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

@@ -4,9 +4,10 @@
 
 [node name="DemonSleep" type="Node2D"]
 script = ExtResource( 1 )
+Circular = false
 
 [node name="OuterEye" type="Polygon2D" parent="."]
-polygon = PoolVector2Array( 75, 0, 53, 53, 0, 75, -53, 53, -75, 0, -53, -53, 0, -75, 53, -53 )
+polygon = PoolVector2Array( 10, 10, 10, -10, -10, -10, -10, 10 )
 
 [node name="InnerEye" type="Polygon2D" parent="."]
 polygon = PoolVector2Array( 15, 0, 10.5, 10.5, 0, 15, -10.5, 10.5, -15, 0, -10.5, -10.5, 0, -15, 10.5, -10.5 )

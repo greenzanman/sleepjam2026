@@ -75,7 +75,7 @@ public class Sheep : SleepNode
 		base._Ready();
 
 		GameManager.AddSheep(this);
-		sheepSprite = GetNode<Sprite>("SheepSprite");
+		sheepSprite = GetNode<Sprite>("Sprite");
 		animPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
         cursedIndicator = GetNode<Node2D>("Sprite/CursedIndicator");
         rebelliousIndicator = GetNode<Node2D>("Sprite/RebelliousIndicator");
@@ -415,7 +415,7 @@ public class Sheep : SleepNode
 	private void ProcessFleeing(float delta)
 	{
 		// Fleeing decrements faster in the pen
-		stateTimer -= InPen() ? delta * 1.5f : 0;
+		stateTimer -= InPen() ? delta * 1f : 0;
 	}
 
 	private void ProcessWandering(float delta)
@@ -425,7 +425,8 @@ public class Sheep : SleepNode
 	protected override void ProcessDreaming(float delta)
 	{
 	}
-	
+
+    // TODO: Make it so animation isn't checked every fram
 	private void UpdateAnimation()
 	{
 		if (!IsAlive) return;  // dead anim handled in bite

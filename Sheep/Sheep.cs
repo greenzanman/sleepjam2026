@@ -424,12 +424,25 @@ public class Sheep : SleepNode
 
 	protected override void ProcessDreaming(float delta)
 	{
+		UpdateAnimation();
 	}
 
     // TODO: Make it so animation isn't checked every fram
 	private void UpdateAnimation()
 	{
 		if (!IsAlive) return;  // dead anim handled in bite
+
+		// always sleep in night  
+		if (GetGameState() == GameState.Dreaming)
+		{
+			sheepSprite.Position = Vector2.Zero;  // incase bro jumped
+			if (animPlayer.CurrentAnimation != "sleep")
+			{
+				animPlayer.Play("sleep");
+				animPlayer.PlaybackSpeed = 1.0f;
+			}
+			return;
+		}
 
 		if (onFence)
 		{

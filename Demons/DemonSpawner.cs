@@ -4,6 +4,7 @@ using System;
 // TODO: This code is all very temp
 public class DemonSpawner : SleepNode
 {
+    private PackedScene demonSneakerScene;
     private PackedScene demonBasicScene;
     private PackedScene demonCloseScene;
     private PackedScene demonSheepScene;
@@ -24,6 +25,7 @@ public class DemonSpawner : SleepNode
         demonCloseScene = GD.Load<PackedScene>("res://Demons/DemonClose.tscn");
         demonSheepScene = GD.Load<PackedScene>("res://Demons/DemonSheep.tscn");
         demonCreeperScene = GD.Load<PackedScene>("res://Demons/DemonCreeper.tscn");
+        demonSneakerScene = GD.Load<PackedScene>("res://Demons/DemonSneaker.tscn");
         sheepScene = GD.Load<PackedScene>("res://Sheep/Sheep.tscn");
         swaps = 0;
         previousSleepiness = 0;
@@ -118,6 +120,16 @@ public class DemonSpawner : SleepNode
                 GetTree().Root.AddChild(newDemon);
         }
 
+        if (newGameState == GameState.Awake && swaps > 1)
+        {
+                (Vector2 spawnPoint, int side) = GetEdgeSpawnpoint();
+
+                DemonSneaker newDemon = demonSneakerScene.Instance<DemonSneaker>();
+                newDemon.Position = spawnPoint;
+                newDemon.PrevGameState = newGameState;
+                Demon d = newDemon;
+                GetTree().Root.AddChild(d);
+        }
     }
 
     const int outsidePadding = 40; // How far outside edges

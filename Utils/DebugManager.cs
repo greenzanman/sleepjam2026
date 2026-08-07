@@ -12,10 +12,16 @@ public class DebugManager : Control
         Instance = this;
         debugText = GetNode<RichTextLabel>("DebugText");
     }
+    
+     public override void _ExitTree()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
 
     public static void SetDebugText(string text)
     {
-        if (Instance != null)
+        if (Instance != null && IsInstanceValid(Instance) && Instance.debugText != null)
         {
             Instance.debugText.Text = text;
         }

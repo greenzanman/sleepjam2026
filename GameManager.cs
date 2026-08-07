@@ -31,11 +31,15 @@ public class GameManager : Node
     private float wakeRate = 1; // Increases once there are no demons
     private bool cyclePaused = false;
 
+    
+
     // Sheep
     private HashSet<Sheep> sheep = new HashSet<Sheep>();
-
+    private int sheepCount = 0;
     // Demons
     private HashSet<Demon> demons = new HashSet<Demon>();
+    private int demonCount = 0;
+    private int noDemonAwakeFactor = 10;
 
     public override void _Ready()
     {
@@ -43,6 +47,7 @@ public class GameManager : Node
         timeDilation = 1;
         isPaused = false;
         gameTime = 0;
+        sheepCount = 0;
     }
 
     public override void _Process(float delta)
@@ -91,13 +96,26 @@ public class GameManager : Node
         // Do other stuff here. Send delegate alert to all nodes?
     }
 
-    public static void AddSheep( Sheep newSheep ) { Instance.sheep.Add(newSheep); }
-    public static void RemoveSheep( Sheep oldSheep ) { Instance.sheep.Remove(oldSheep); }
+    public static void AddSheep( Sheep newSheep ) { 
+        Instance.sheep.Add(newSheep); 
+        Instance.sheepCount += 1;
+    }
+    public static void RemoveSheep( Sheep oldSheep ) { 
+        Instance.sheep.Remove(oldSheep); 
+        Instance.sheepCount -= 1;
+    }
     public static ref readonly HashSet<Sheep> GetSheep() { return ref Instance.sheep;} 
     
-    public static void AddDemon( Demon newDemon ) { Instance.demons.Add(newDemon); }
-    public static void RemoveDemon( Demon oldDemon ) { Instance.demons.Remove(oldDemon); }
-    public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;} 
+    public static void AddDemon( Demon newDemon ) { 
+        Instance.demons.Add(newDemon); 
+        Instance.demonCount += 1;
+    }
+    
+    public static void RemoveDemon( Demon oldDemon ) { 
+        Instance.demons.Remove(oldDemon); 
+        Instance.demonCount -= 1;
+    }
+    public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;}
 
 // MARK: Sleep stuff
     public static void IncrementSleepCount( int amount = 1) { 
@@ -116,6 +134,7 @@ public class GameManager : Node
             if (sleepCount >= MAX_SLEEPCOUNT)
             {
                 gameState = GameState.Dreaming;
+                StatKeeper.NumSleepInstances += 1;
                 wakeRate = 1;
             }
         }
@@ -129,7 +148,6 @@ public class GameManager : Node
             // Sleep decreases faster if nothing to do
             if (demons.Count == 0)
                 wakeRate += delta;
-
             if (sleepCount <= 0)
             {
                 sleepCount = 0;
@@ -186,6 +204,7 @@ public class GameManager : Node
         {
             demon.Destroy();
             RemoveDemon(demon);
+            StatKeeper.NumDemonsKilled += 1;
         }
 
         List<Sheep> sheepToDestroy = new List<Sheep>();
@@ -201,6 +220,25 @@ public class GameManager : Node
         {
             sheepInd.Destroy();
             RemoveSheep(sheepInd);
+            StatKeeper.NumSheepDeaths += 1;
         }
+        
+        // Lose State
+        if(sheepCount <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
+        {
+            List<Demon> dtd = new List<Demon>();
+            foreach (Demon d in demons)
+            {
+                dtd.Add(d);
+            }
+            
+            foreach(Demon d in dtd) {
+                d.Destroy();
+                RemoveDemon(d);
+            }
+            GD.Print("All sheep dead, game over");
+            GetTree().ChangeScene("res://UI/LoseScreen.tscn");
+        }
+        GD.Print($"Sheep Count: {sheepCount}");
     }
 }

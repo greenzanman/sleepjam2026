@@ -52,6 +52,7 @@ public class DemonSheep : Demon
     {
         if (cursedSheep != null)
             cursedSheep.cursed = false;
+        StatKeeper.NumSheepPurified += 1;
     }
 
     protected override void ProcessDreaming(float delta)

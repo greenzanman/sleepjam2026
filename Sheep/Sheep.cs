@@ -198,8 +198,11 @@ public class Sheep : SleepNode
 		}
 
 		// Crossing fence
-		if (onFence && !nowOnFence)
+		if (onFence && !nowOnFence) {
 			GameManager.IncrementSleepCount();
+			StatKeeper.NumFenceJumps += 1;
+		}
+			
 
 		onFence = nowOnFence;
 		

@@ -21,6 +21,7 @@ anchor_bottom = 1.0
 script = ExtResource( 2 )
 gameScene = ExtResource( 3 )
 menuScene = ExtResource( 4 )
+animationPlayerPath = NodePath("Node2D/KinematicBody2D/AnimationPlayer")
 
 [node name="Background" type="ColorRect" parent="."]
 modulate = Color( 0.00784314, 0.0196078, 0.141176, 1 )
@@ -29,9 +30,9 @@ anchor_bottom = 1.0
 
 [node name="Label" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 0.239
+anchor_top = 0.174
 anchor_right = 0.5
-anchor_bottom = 0.239
+anchor_bottom = 0.174
 margin_left = -233.0
 margin_right = 233.0
 margin_bottom = 56.0
@@ -68,7 +69,7 @@ text = "MENU"
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 1408, 325 )
+position = Vector2( 0, 350 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"
@@ -77,5 +78,3 @@ anims/frolic_over_fence-loop = ExtResource( 6 )
 
 [node name="Sprite" type="Sprite" parent="Node2D/KinematicBody2D"]
 texture = ExtResource( 5 )
-
-[connection signal="pressed" from="RetryButton" to="." method="_on_RetryButton_pressed"]

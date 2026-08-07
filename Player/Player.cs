@@ -56,6 +56,7 @@ public class Player : SleepNode
 			}
 
 			barkTimer = barkCooldown;
+			StatKeeper.NumBarks += 1;
 		}
 	}
 

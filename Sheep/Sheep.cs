@@ -431,7 +431,7 @@ public class Sheep : SleepNode
             break;
 
             case SheepState.Fleeing:
-                if ( stateSpeed == fleeSettleSpeed || InPen())
+                if (stateSpeed <= (fleeSettleSpeed + 0.001f) || InPen())
                 {
                     EnterNewState(InPen() ? SheepState.Idle : SheepState.Wandering);
                 }
@@ -465,7 +465,8 @@ public class Sheep : SleepNode
 
     private void ProcessFleeing(float delta)
     {
-        if (fleeDuration > 0)
+        // bark easing only apply when actually fleeing
+        if (fleeDuration > 0 && stateSpeed > (fleeSettleSpeed + 0.001f))
         {
             // see my comment in the whiteboard
             float remainingRatio = Mathf.Clamp(stateTimer / fleeDuration, 0, 1);

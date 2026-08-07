@@ -87,7 +87,7 @@ text = "MENU"
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 0, 350 )
+position = Vector2( 640, 325 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"

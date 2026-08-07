@@ -30,13 +30,15 @@ public class GameManager : Node
 	public const int MAX_SLEEPCOUNT = 16;
 	private bool cyclePaused = false;
 
-	private int sheepCount = 0;
+	
 
 	// Sheep
 	private HashSet<Sheep> sheep = new HashSet<Sheep>();
-
+	private int sheepCount = 0;
 	// Demons
 	private HashSet<Demon> demons = new HashSet<Demon>();
+	private int demonCount = 0;
+	private int noDemonAwakeFactor = 10;
 
 	public override void _Ready()
 	{
@@ -103,9 +105,16 @@ public class GameManager : Node
 	}
 	public static ref readonly HashSet<Sheep> GetSheep() { return ref Instance.sheep;} 
 	
-	public static void AddDemon( Demon newDemon ) { Instance.demons.Add(newDemon); }
-	public static void RemoveDemon( Demon oldDemon ) { Instance.demons.Remove(oldDemon); }
-	public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;} 
+	public static void AddDemon( Demon newDemon ) { 
+		Instance.demons.Add(newDemon); 
+		Instance.demonCount += 1;
+	}
+	
+	public static void RemoveDemon( Demon oldDemon ) { 
+		Instance.demons.Remove(oldDemon); 
+		Instance.demonCount -= 1;
+	}
+	public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;}
 
 // MARK: Sleep stuff
 	public static void IncrementSleepCount() { 
@@ -132,7 +141,12 @@ public class GameManager : Node
 #if DEBUG
 			if (cyclePaused) sleepCount += delta;
 #endif
-			sleepCount -= delta;
+			if (demonCount > 0) {
+				sleepCount -= delta;
+			} else {
+				sleepCount -= delta * noDemonAwakeFactor;
+			}
+			
 			if (sleepCount <= 0)
 			{
 				sleepCount = 0;

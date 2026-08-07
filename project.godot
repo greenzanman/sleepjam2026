@@ -21,8 +21,11 @@ GameManager="*res://GameManager.cs"
 [display]
 
 window/size/width=1280
-window/size/height=720
-window/size/resizable=false
+window/size/height=960
+window/size/test_width=960
+window/size/test_height=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
 
 [gui]
 
@@ -79,6 +82,11 @@ key_debugIncrementSleep={
 key_debugDecrementSleep={
 "deadzone": 0.5,
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":45,"unicode":0,"echo":false,"script":null)
+ ]
+}
+key_debugPauseCycle={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":0,"physical_scancode":79,"unicode":0,"echo":false,"script":null)
  ]
 }
 

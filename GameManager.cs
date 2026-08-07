@@ -239,6 +239,5 @@ public class GameManager : Node
             GD.Print("All sheep dead, game over");
             GetTree().ChangeScene("res://UI/LoseScreen.tscn");
         }
-        GD.Print($"Sheep Count: {sheepCount}");
     }
 }

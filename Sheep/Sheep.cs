@@ -36,6 +36,10 @@ public class Sheep : SleepNode
     private Sprite sheepSprite;
     private AnimationPlayer animPlayer;
     private bool onFence = false;
+    private Tween fenceHopTween;
+    private const float fenceHopHeight = 12f;
+    private const float fenceHopRiseDuration = 0.18f;
+    private const float fenceHopFallDuration = 0.14f;
     
     
 
@@ -84,6 +88,13 @@ public class Sheep : SleepNode
         GameManager.AddSheep(this);
         sheepSprite = GetNode<Sprite>("Sprite");
         animPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+        fenceHopTween = GetNodeOrNull<Tween>("FenceHopTween");
+        if (fenceHopTween == null)
+        {
+            fenceHopTween = new Tween();
+            fenceHopTween.Name = "FenceHopTween";
+            AddChild(fenceHopTween);
+        }
         cursedIndicator = GetNode<Node2D>("Sprite/CursedIndicator");
         rebelliousIndicator = GetNode<Node2D>("Sprite/RebelliousIndicator");
 
@@ -251,19 +262,32 @@ public class Sheep : SleepNode
         if (onFence && !nowOnFence)
             GameManager.IncrementSleepCount();
 
+        if (onFence != nowOnFence)
+        {
+            Vector2 targetOffset = nowOnFence ? Vector2.Up * fenceHopHeight : Vector2.Zero;
+            float hopDuration = nowOnFence ? fenceHopRiseDuration : fenceHopFallDuration;
+            BeginFenceHopTween(targetOffset, hopDuration);
+        }
+
         onFence = nowOnFence;
         
-        // Basic 'fence hopping' visual
-        if (onFence)
-        {
-            sheepSprite.Position = Vector2.Up * 12;
-        }
-        else
-        {
-            sheepSprite.Position = Vector2.Zero;
-        }
-        
         UpdateAnimation();
+    }
+
+    private void BeginFenceHopTween(Vector2 targetOffset, float duration)
+    {
+        float safeDuration = Mathf.Max(0.001f, duration);
+        fenceHopTween.StopAll();
+        fenceHopTween.InterpolateProperty(
+            sheepSprite,
+            "position",
+            sheepSprite.Position,
+            targetOffset,
+            safeDuration,
+            Tween.TransitionType.Back,
+            Tween.EaseType.Out
+        );
+        fenceHopTween.Start();
     }
 
     private void EnterNewState( SheepState newState )

@@ -1,0 +1,10 @@
+[gd_scene format=2]
+
+[node name="DemonSleep" type="Node2D"]
+
+[node name="OuterRadius" type="Polygon2D" parent="."]
+polygon = PoolVector2Array( 75, 0, 53, 53, 0, 75, -53, 53, -75, 0, -53, -53, 0, -75, 53, -53 )
+
+[node name="InnerThing" type="Polygon2D" parent="."]
+color = Color( 0, 0, 0, 1 )
+polygon = PoolVector2Array( 15, 0, 10.5, 10.5, 0, 15, -10.5, 10.5, -15, 0, -10.5, -10.5, 0, -15, 10.5, -10.5 )

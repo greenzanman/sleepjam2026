@@ -119,18 +119,3 @@ position = Vector2( 572, 460 )
 
 [node name="Sheep5" parent="." instance=ExtResource( 4 )]
 position = Vector2( 731, 508 )
-
-[node name="Sheep6" parent="." instance=ExtResource( 4 )]
-position = Vector2( 572, 497 )
-
-[node name="Sheep7" parent="." instance=ExtResource( 4 )]
-position = Vector2( 762, 413 )
-
-[node name="Sheep8" parent="." instance=ExtResource( 4 )]
-position = Vector2( 543, 422 )
-
-[node name="Sheep9" parent="." instance=ExtResource( 4 )]
-position = Vector2( 619, 450 )
-
-[node name="Sheep10" parent="." instance=ExtResource( 4 )]
-position = Vector2( 778, 498 )

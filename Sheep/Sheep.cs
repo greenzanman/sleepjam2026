@@ -20,6 +20,13 @@ public class Sheep : SleepNode
     public bool cursed = false; // Will not be attacked by demons
     private Node2D cursedIndicator;
 
+    // Rebellious
+    public bool rebellious = false;
+    private float rebellionTimer = 0;
+    private Node2D rebelliousIndicator;
+    private float rebellionRange = 150;
+    private const float rebelliousSpeed = 75;
+    private double rebellionChance = 0.5; // Chance sheep in range rebells
     
     private Random random = new Random();
     
@@ -65,7 +72,8 @@ public class Sheep : SleepNode
 
         GameManager.AddSheep(this);
         sheepSprite = GetNode<Node2D>("Sprite");
-        cursedIndicator = GetNode<Node2D>("CursedIndicator");
+        cursedIndicator = GetNode<Node2D>("Sprite/CursedIndicator");
+        rebelliousIndicator = GetNode<Node2D>("Sprite/RebelliousIndicator");
 
         EnterNewState(SheepState.Idle);
     
@@ -117,20 +125,41 @@ public class Sheep : SleepNode
         if (hurtTimer > 0)
         {
             hurtTimer -= delta;
-            Modulate = (int)(hurtTimer * 10) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+            Modulate = (int)(hurtTimer * GameSettings.FlashRate) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
             if (hurtTimer <= 0)
             {
                 InPlay = false;
             }
         }
 
-        // Cursed indicator
+        // Indicators
         cursedIndicator.Visible = cursed;
+        rebelliousIndicator.Visible = rebellious;
+
+        if (rebellionTimer > 0)
+        {
+            rebellionTimer -= delta;
+            rebelliousIndicator.Visible = (int) (rebellionTimer * GameSettings.FlashRate) % 2 == 1;
+        }
 
 #if DEBUG
         Update();
 #endif
     }
+
+    protected override void UpdateGameState(GameState newGameState)
+    {
+        base.UpdateGameState(newGameState);
+ 
+        if (newGameState == GameState.Dreaming)
+        {
+            rebellious = false;
+            idleTicksSpent = 0; // Don't immediately wander upon waking up
+
+            EnterNewState(InPen() ? SheepState.Idle : SheepState.Wandering);
+        }
+    }
+
 
     protected override void ProcessAwake(float delta)
     {
@@ -155,6 +184,8 @@ public class Sheep : SleepNode
 
         // Keeping without bounds (maybe we don't want this; i.e. spook too far and they run off forever)
         Vector2 newPosition = Position + delta * stateDirection * stateSpeed;
+
+
         if (newPosition.x > GameSettings.ScreenWidth - overallPadding)
             newPosition.x = GameSettings.ScreenWidth - overallPadding;
         if (newPosition.x < overallPadding)
@@ -170,12 +201,6 @@ public class Sheep : SleepNode
         {
             // Find next movement goal
             FindNextMovement();
-        }
-    
-        // Updating cursed indicator
-        if (cursed)
-        {
-            cursedIndicator.Position = sheepSprite.Position + Vector2.Up * 50;
         }
 
         // Checking fence state
@@ -213,9 +238,11 @@ public class Sheep : SleepNode
         switch (state)
         {
             case SheepState.Idle:
+
+                stateSpeed = rebellious ? rebelliousSpeed : idleSpeed;
+
                 FindNextMovement();
 
-                stateSpeed = idleSpeed;
             break;
 
             case SheepState.Wandering:
@@ -258,9 +285,30 @@ public class Sheep : SleepNode
                     }
                 }
 
+
+                stateSpeed = rebellious ? rebelliousSpeed : wanderSpeed;
+
                 FindNextMovement();
 
-                stateSpeed = wanderSpeed;
+                if (rebellious)
+                {
+                    foreach (Sheep sheep in GameManager.GetSheep())
+                    {
+                        if (sheep != this && sheep.IsAlive && sheep.state == SheepState.Idle)
+                        {
+                            if ((sheep.Position - Position).LengthSquared() < rebellionRange * rebellionRange &&
+                                random.NextDouble() < rebellionChance)
+                            {
+                                sheep.rebellionTimer = 4;
+                                sheep.EnterNewState(SheepState.Wandering);
+
+                                // TODO: Maybe want them to rebell in similar directions?
+                            }
+                        }
+                    }
+                    // TODO: Get other sheep to wander
+                }
+
             break;
 
             case SheepState.Fleeing:
@@ -276,7 +324,7 @@ public class Sheep : SleepNode
             case SheepState.Idle:
                 int chosenMode = random.Next(10);
 
-                if (chosenMode <= 3 || onFence) // Never stand still on fence
+                if (chosenMode <= (rebellious ? 7 : 3) || onFence) // Never stand still on fence
                 {
                     // Find new idle location
                     Vector2 idleGoal = new Vector2(random.Next(GameSettings.PenLeft + edgePadding, GameSettings.PenRight - edgePadding),
@@ -291,19 +339,19 @@ public class Sheep : SleepNode
                     }
 
                     float travelDistance = (idleGoal - Position).Length();
-                    stateTimer = travelDistance / idleSpeed;
+                    stateTimer = travelDistance / stateSpeed;
 
                     stateDirection = (idleGoal - Position) / travelDistance; 
 
                     
                 }
-                else if (chosenMode <= 14 - idleTicksSpent)
+                else if (chosenMode <= 14 - idleTicksSpent && !rebellious) // rebellious sheep are never still
                 {
                     // Wait for 1-4 seconds, and move again
                     stateTimer = random.Next(1, 2);
                     stateDirection = Vector2.Zero;
                 }
-                else
+                else // TODO: Make less likely if theres already a lot of wandering?
                 {
                     EnterNewState(SheepState.Wandering);
                 }
@@ -312,10 +360,18 @@ public class Sheep : SleepNode
             break;
 
             case SheepState.Wandering:            
-                Vector2 wanderGoal = wanderPoint + new Vector2(random.Next(-wanderRange, wanderRange), random.Next(-wanderRange, wanderRange));
-                float wanderDistance = (wanderGoal - Position).Length();
-                stateDirection = (wanderGoal - Position) / wanderDistance;
-                stateTimer = wanderDistance / wanderSpeed;
+                // Rebellious sheep sometimes go back for more sheep
+                if (rebellious && random.Next(3) == 0)
+                {
+                    EnterNewState(SheepState.Idle);
+                }
+                else // Otherwise, wander around wanter point
+                {
+                    Vector2 wanderGoal = wanderPoint + new Vector2(random.Next(-wanderRange, wanderRange), random.Next(-wanderRange, wanderRange));
+                    float wanderDistance = (wanderGoal - Position).Length();
+                    stateDirection = (wanderGoal - Position) / wanderDistance;
+                    stateTimer = wanderDistance / stateSpeed;
+                }
             break;
 
             case SheepState.Fleeing:
@@ -345,12 +401,6 @@ public class Sheep : SleepNode
     private Vector2 GetGoal()
     {
         return Position + stateDirection * stateTimer * stateSpeed;
-    }
-
-    // Doesn't normalize speed, so can be weird
-    private void UpdateGoal( Vector2 newGoal )
-    {
-        stateDirection = (newGoal - Position) / stateTimer / stateSpeed;
     }
 
     private void ProcessIdle(float delta)

@@ -27,7 +27,7 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 16;
+    public const int MAX_SLEEPCOUNT = 24;
     private bool cyclePaused = false;
 
     // Sheep
@@ -123,6 +123,11 @@ public class GameManager : Node
             if (cyclePaused) sleepCount += delta;
 #endif
             sleepCount -= delta;
+
+            // Sleep decreases faster if nothing to do
+            if (demons.Count == 0)
+                sleepCount -= 3 * delta;
+
             if (sleepCount <= 0)
             {
                 sleepCount = 0;

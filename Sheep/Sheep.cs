@@ -42,17 +42,24 @@ public class Sheep : SleepNode
     float stateTimer = 0;
     Vector2 stateDirection;
     float stateSpeed;
+    Vector2 currentVelocity = Vector2.Zero;
+
+    const float movementAcceleration = 40f;
+    const float movementDeceleration = 6f;
 
     // How close it can get to any edge
     float overallPadding = 20;
 
     // Fleeing
-    const float fleeSpeed = 120;
-    const float fleeCoolSpeed = 10;
+    const float fleeSpeed = 180;
+    const float fleeSettleSpeed = 10;
     const int fleeCoolSubradius = 10;
     const float maxFleeDuration = 1.5f;
     const float minFleeDuration = 0.4f;
     const float fleeDistance = 250;
+    const float barkEaseOutPower = 2.4f;
+    const float barkMinSpeedScale = 0.2f;
+    float fleeDuration = 0;
 
     // Idle
     float idleSpeed = 40;
@@ -97,6 +104,7 @@ public class Sheep : SleepNode
                 newStateTimer += stateTimer / 2;
             
             stateTimer = newStateTimer;
+            fleeDuration = newStateTimer;
 
             stateDirection = Mathf.IsZeroApprox(fleeLength) ? Vector2.Left : potentialFleeDirection / fleeLength;
             EnterNewState(SheepState.Fleeing);
@@ -189,8 +197,21 @@ public class Sheep : SleepNode
         // Perform movement
         stateTimer -= delta;
 
+        // i set up accel and decel.
+        // - accel is for sheep being pushed like a bark
+        // - decel for sheep settling down. so it keeps some inertia yknow
+        Vector2 targetVelocity = stateDirection * stateSpeed;
+        bool isAbouttaFlip = currentVelocity.Dot(targetVelocity) < 0;
+        bool isSpeedingUp = targetVelocity.LengthSquared() > currentVelocity.LengthSquared();
+        bool needsFastResponse = isAbouttaFlip || isSpeedingUp;
+       
+        float responseRate = needsFastResponse ? movementAcceleration : movementDeceleration;
+        float decay = Mathf.Exp(-responseRate * delta);
+        float velocityBlend = 1f - decay;
+        currentVelocity = currentVelocity.LinearInterpolate(targetVelocity, velocityBlend);
+
         // Keeping without bounds (maybe we don't want this; i.e. spook too far and they run off forever)
-        Vector2 newPosition = Position + delta * stateDirection * stateSpeed;
+        Vector2 newPosition = Position + delta * currentVelocity;
 
 
         if (newPosition.x > GameSettings.ScreenWidth - overallPadding)
@@ -201,6 +222,12 @@ public class Sheep : SleepNode
             newPosition.y = GameSettings.ScreenHeight - overallPadding;
         if (newPosition.y < overallPadding)
             newPosition.y = overallPadding;
+
+        // leeway to stop velcity when blocked
+        if (Mathf.IsEqualApprox(newPosition.x, overallPadding) || Mathf.IsEqualApprox(newPosition.x, GameSettings.ScreenWidth - overallPadding))
+            currentVelocity.x = 0;
+        if (Mathf.IsEqualApprox(newPosition.y, overallPadding) || Mathf.IsEqualApprox(newPosition.y, GameSettings.ScreenHeight - overallPadding))
+            currentVelocity.y = 0;
 
         Position = newPosition;
 
@@ -380,7 +407,7 @@ public class Sheep : SleepNode
             break;
 
             case SheepState.Fleeing:
-                if ( stateSpeed == fleeCoolSpeed || InPen())
+                if ( stateSpeed == fleeSettleSpeed || InPen())
                 {
                     EnterNewState(InPen() ? SheepState.Idle : SheepState.Wandering);
                 }
@@ -395,9 +422,9 @@ public class Sheep : SleepNode
                     float fleeDistance = fleeOffset.Length();
 
                     stateDirection = fleeOffset / fleeDistance;
-                    stateTimer = fleeDistance / fleeCoolSpeed;
+                    stateTimer = fleeDistance / fleeSettleSpeed;
 
-                    stateSpeed = fleeCoolSpeed;
+                    stateSpeed = fleeSettleSpeed;
                 }
             break;
         }
@@ -414,8 +441,19 @@ public class Sheep : SleepNode
 
     private void ProcessFleeing(float delta)
     {
+        if (fleeDuration > 0)
+        {
+            // see my comment in the whiteboard
+            float remainingRatio = Mathf.Clamp(stateTimer / fleeDuration, 0, 1);
+            float easeOutFactor = Mathf.Max(barkMinSpeedScale, Mathf.Pow(remainingRatio, barkEaseOutPower));
+            stateSpeed = Mathf.Lerp(fleeSettleSpeed, fleeSpeed, easeOutFactor);
+        }
+
         // Fleeing decrements faster in the pen
         stateTimer -= InPen() ? delta * 1f : 0;
+
+        if (stateTimer <= 0)
+            stateSpeed = fleeSettleSpeed;
     }
 
     private void ProcessWandering(float delta)
@@ -454,7 +492,8 @@ public class Sheep : SleepNode
             return;
         }
 
-        if (stateDirection != Vector2.Zero)
+        // need a certain amt of speed to do run
+        if (currentVelocity.LengthSquared() > 4)
         {
             string targetAnim = state == SheepState.Fleeing ? "run_eyes" : "run";
             
@@ -463,8 +502,8 @@ public class Sheep : SleepNode
 
             animPlayer.PlaybackSpeed = stateSpeed / wanderSpeed;
 
-            if (stateDirection.x != 0)
-                sheepSprite.FlipH = stateDirection.x < 0; 
+            if (currentVelocity.x != 0)
+                sheepSprite.FlipH = currentVelocity.x < 0; 
                 
             return;
                 

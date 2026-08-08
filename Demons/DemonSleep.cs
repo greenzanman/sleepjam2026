@@ -45,7 +45,7 @@ public class DemonSleep : SleepNode
 
     protected override void Process(float delta)
     {
-        Vector2 playerPosition = GameManager.GetPlayerWorldPosition().Position;
+        Vector2 playerPosition = GameManager.GetPlayerWorldPosition();
 
         if (triggered) // Basic trigger animation
         {

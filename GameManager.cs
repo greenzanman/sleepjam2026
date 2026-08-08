@@ -13,9 +13,11 @@ public enum GameState
 public class GameManager : Node
 {
     public static GameManager Instance { get; private set; }
+    public static Node2D WorldRoot;
 
     public static bool DebugDraw = false;
 
+    private bool inPlay = true;
     private Player player;
     private float gameTime;
 
@@ -27,19 +29,18 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 24;
+    public const int MAX_SLEEPCOUNT = 16;
     private float wakeRate = 1; // Increases once there are no demons
     private bool cyclePaused = false;
+
+    private int nightCount = 0;
 
     
 
     // Sheep
     private HashSet<Sheep> sheep = new HashSet<Sheep>();
-    private int sheepCount = 0;
     // Demons
     private HashSet<Demon> demons = new HashSet<Demon>();
-    private int demonCount = 0;
-    private int noDemonAwakeFactor = 10;
 
     public override void _Ready()
     {
@@ -47,7 +48,10 @@ public class GameManager : Node
         timeDilation = 1;
         isPaused = false;
         gameTime = 0;
-        sheepCount = 0;
+        nightCount = 0;
+
+        WorldRoot = GetTree().Root.GetNode<Node2D>("World");
+
     }
 
     public override void _Process(float delta)
@@ -63,14 +67,14 @@ public class GameManager : Node
 
 // MARK: Getters and Setters
     public static void SetPlayer( Player inPlayer ) { Instance.player = inPlayer; }
-    public static Player GetPlayerWorldPosition() { return Instance.GetPlayerInternal(); }
-    public Player GetPlayerInternal() { 
-        if (player == null)
+    public static Vector2 GetPlayerWorldPosition() { return Instance.GetPlayerWorldPositionInternal(); }
+    public Vector2 GetPlayerWorldPositionInternal() { 
+        if (player == null || !inPlay)
         {
             GD.PrintErr("Attempted to get player position before it's set");
-            return null;
+            return Vector2.Zero;
         }
-        return player;
+        return player.Position;
     }
 
     public static bool GetPaused() { return Instance.isPaused; }
@@ -87,6 +91,11 @@ public class GameManager : Node
     {
         return Instance.gameTime;
     }
+
+    public static int GetNightCount()
+    {
+        return Instance.nightCount;
+    }
     
     public static GameState GetGameState() {return Instance.gameState;}
     public static void SetGameState( GameState newGameState ) { Instance.SetGameStateInternal( newGameState ); }
@@ -98,22 +107,18 @@ public class GameManager : Node
 
     public static void AddSheep( Sheep newSheep ) { 
         Instance.sheep.Add(newSheep); 
-        Instance.sheepCount += 1;
     }
     public static void RemoveSheep( Sheep oldSheep ) { 
         Instance.sheep.Remove(oldSheep); 
-        Instance.sheepCount -= 1;
     }
     public static ref readonly HashSet<Sheep> GetSheep() { return ref Instance.sheep;} 
     
     public static void AddDemon( Demon newDemon ) { 
         Instance.demons.Add(newDemon); 
-        Instance.demonCount += 1;
     }
     
     public static void RemoveDemon( Demon oldDemon ) { 
         Instance.demons.Remove(oldDemon); 
-        Instance.demonCount -= 1;
     }
     public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;}
 
@@ -134,6 +139,7 @@ public class GameManager : Node
             if (sleepCount >= MAX_SLEEPCOUNT)
             {
                 gameState = GameState.Dreaming;
+                nightCount += 1;
                 StatKeeper.NumSleepInstances += 1;
                 wakeRate = 1;
             }
@@ -147,7 +153,8 @@ public class GameManager : Node
 
             // Sleep decreases faster if nothing to do
             if (demons.Count == 0)
-                wakeRate += delta;
+                wakeRate += delta * 2;
+                
             if (sleepCount <= 0)
             {
                 sleepCount = 0;
@@ -237,19 +244,15 @@ public class GameManager : Node
         }
         
         // Lose State
-        if(sheepCount <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
+        if(sheep.Count <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
         {
-            List<Demon> dtd = new List<Demon>();
             foreach (Demon d in demons)
             {
-                dtd.Add(d);
-            }
-            
-            foreach(Demon d in dtd) {
                 d.Destroy();
-                RemoveDemon(d);
             }
+
             GD.Print("All sheep dead, game over");
+            inPlay = false;
             GetTree().ChangeScene("res://UI/LoseScreen.tscn");
         }
     }

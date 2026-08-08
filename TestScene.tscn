@@ -106,4 +106,18 @@ margin_right = 195.0
 margin_bottom = 40.0
 
 [node name="Sheep" parent="." instance=ExtResource( 4 )]
+unique_name_in_owner = true
 position = Vector2( 525, 507 )
+
+[node name="Sheep2" parent="." instance=ExtResource( 4 )]
+unique_name_in_owner = true
+position = Vector2( 718, 460 )
+
+[node name="Sheep3" parent="." instance=ExtResource( 4 )]
+position = Vector2( 718, 501 )
+
+[node name="Sheep4" parent="." instance=ExtResource( 4 )]
+position = Vector2( 611, 440 )
+
+[node name="Sheep5" parent="." instance=ExtResource( 4 )]
+position = Vector2( 684, 567 )

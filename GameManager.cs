@@ -195,6 +195,11 @@ public class GameManager : Node
                 demon.Die();
             }
         }
+
+        if (Input.IsActionJustPressed("key_debugTest"))
+        {
+            DemonSpawner.Instance.SpawnSleeper();
+        }
     }
 
     private void ProcessCleanup(float delta)

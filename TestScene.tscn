@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Player/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenery/Background.cs" type="Script" id=2]
@@ -7,7 +7,6 @@
 [ext_resource path="res://Scenery/SleepRect.cs" type="Script" id=5]
 [ext_resource path="res://Demons/DemonSpawner.cs" type="Script" id=6]
 [ext_resource path="res://Scenery/Fence.cs" type="Script" id=7]
-[ext_resource path="res://Demons/DemonSleepRect.tscn" type="PackedScene" id=9]
 
 [node name="World" type="Node2D"]
 
@@ -108,6 +107,3 @@ margin_bottom = 40.0
 
 [node name="Sheep" parent="." instance=ExtResource( 4 )]
 position = Vector2( 525, 507 )
-
-[node name="DemonSleep" parent="." instance=ExtResource( 9 )]
-position = Vector2( 1103, 302 )

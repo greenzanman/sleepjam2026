@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 // TODO: This code is all very temp
 public class DemonSpawner : SleepNode
@@ -10,11 +11,14 @@ public class DemonSpawner : SleepNode
     private PackedScene demonSheepScene;
     private PackedScene sheepScene;
     private PackedScene demonCreeperScene;
-    private PackedScene demonSleeperScene;
+    private PackedScene demonSleeperCircleScene;
+    private PackedScene demonSleeperRectScene;
 
     private int swaps; // How many day/night swaps have happened
     private Random random = new Random();
     public static DemonSpawner Instance { get; private set; }
+
+    public HashSet<int> sleepSpots = new HashSet<int>();
 
     // Tieing to sleep
     private int previousSleepiness; // For callbacks on sleepiness increases
@@ -28,7 +32,8 @@ public class DemonSpawner : SleepNode
         demonSheepScene = GD.Load<PackedScene>("res://Demons/DemonSheep.tscn");
         demonCreeperScene = GD.Load<PackedScene>("res://Demons/DemonCreeper.tscn");
         demonSneakerScene = GD.Load<PackedScene>("res://Demons/DemonSneaker.tscn");
-        demonSleeperScene = GD.Load<PackedScene>("res://Demons/DemonSleep.tscn");
+        demonSleeperCircleScene = GD.Load<PackedScene>("res://Demons/DemonSleep.tscn");
+        demonSleeperRectScene = GD.Load<PackedScene>("res://Demons/DemonSleepRect.tscn");
         sheepScene = GD.Load<PackedScene>("res://Sheep/Sheep.tscn");
         swaps = 0;
         previousSleepiness = 0;
@@ -106,6 +111,11 @@ public class DemonSpawner : SleepNode
         {
             SpawnRebelliousSheep();
         }
+
+        if ( value == GameManager.MAX_SLEEPCOUNT / 2)
+        {
+            SpawnSleeper();
+        }
     }
 
     protected override void UpdateGameState(GameState newGameState)
@@ -145,8 +155,92 @@ public class DemonSpawner : SleepNode
 
         DemonSneaker newDemon = demonSneakerScene.Instance<DemonSneaker>();
         newDemon.Position = spawnPoint;
-        Demon d = newDemon;
-        GetTree().Root.AddChild(d);
+        GetTree().Root.AddChild(newDemon);
+    }
+
+    public void SpawnSleeper()
+    {
+        // Spots all filled already, somehow
+        if (sleepSpots.Count == 8)
+            return;
+    
+        // Find a position that's not taken
+        int[] openSpots = new int[8 - sleepSpots.Count];
+        int index = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            if (!sleepSpots.Contains(i))
+            {
+                openSpots[index] = i;
+                index++;   
+            }
+        }
+
+        int chosenSpot = openSpots[random.Next(openSpots.Length)];
+        sleepSpots.Add(chosenSpot);
+
+        const int sideOffset = 150;
+
+        if (chosenSpot % 2 == 0)
+        {
+            DemonSleep demonSleep = demonSleeperCircleScene.Instance<DemonSleep>();
+            bool left = chosenSpot % 4 == 0;
+            bool top = chosenSpot < 4;
+
+            Vector2 position = new Vector2(
+                left ? sideOffset : GameSettings.ScreenWidth - sideOffset,
+                top ? sideOffset : GameSettings.ScreenHeight - sideOffset
+            );
+
+            position += new Vector2(random.Next(-50, 50), random.Next(-50, 50));
+
+            demonSleep.Circular = true;
+            demonSleep.Position = position;
+            demonSleep.radius = 50;
+            demonSleep.positionIndex = chosenSpot;
+            GetTree().Root.AddChild(demonSleep);
+        }
+        else
+        {
+            DemonSleep demonSleep = demonSleeperRectScene.Instance<DemonSleep>();
+        
+            // Top or bottom
+            Vector2 position;
+
+            if (chosenSpot % 4 == 1)
+            {
+                bool top = chosenSpot == 1;
+
+                position = new Vector2(
+                    GameSettings.ScreenWidth / 2,
+                    top ? sideOffset : GameSettings.ScreenHeight - sideOffset
+                );
+
+                position += new Vector2(random.Next(-100, 100), random.Next(-30, 30));
+
+                demonSleep.halfLength = 200;
+                demonSleep.halfHeight = 40;
+            }
+            else
+            {
+                bool left = chosenSpot == 7;
+
+                position = new Vector2(
+                    left ? sideOffset : GameSettings.ScreenWidth - sideOffset,
+                    GameSettings.ScreenHeight / 2
+                );
+                
+                position += new Vector2(random.Next(-30, 30), random.Next(-100, 100));
+
+                demonSleep.halfLength = 40;
+                demonSleep.halfHeight = 160;
+            }
+
+            demonSleep.Circular = false;
+            demonSleep.Position = position;
+            demonSleep.positionIndex = chosenSpot;
+            GetTree().Root.AddChild(demonSleep);
+        }
     }
 
     const int outsidePadding = 40; // How far outside edges

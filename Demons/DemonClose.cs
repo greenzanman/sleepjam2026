@@ -18,7 +18,9 @@ public class DemonClose : DemonBasic
     }
 
     protected override void ProcessAwake(float delta)
-    {
+    {        
+        base.ProcessAwake(delta);
+
         if (!Bitable)
         {
             // Flicker to show invulnerability

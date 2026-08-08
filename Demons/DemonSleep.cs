@@ -5,6 +5,8 @@ using System;
 // Can be circular or rectangular
 public class DemonSleep : SleepNode
 {
+    // 1 - 8 for 8 spots around the level
+    public int positionIndex = 0;
     [Export] public bool Circular = true;
     [Export] public int halfLength = 40;
     [Export] public int halfHeight = 100;
@@ -15,21 +17,18 @@ public class DemonSleep : SleepNode
     private const int spawnAmount = 2;
     private const int sleepAmount = 5;
 
-    private float spawnAge = 0;
-    private const float spawnDuration = 3;
+    private bool opening = true;
+    private float openTimer = 0;
+    private const float openDuration = 3;
 
     private bool triggered = false;
     private float startTriggeredSpeed = -300;
     private float triggerAcceleration = 250;
     public override void _Ready()
     {
-        base._Ready();
-
         outerEye = GetNode<Node2D>("OuterEye");
         innerEye = GetNode<Node2D>("InnerEye");
-    
-        outerEye.Modulate = GameSettings.colorLight;
-        innerEye.Modulate = GameSettings.colorDark;
+        base._Ready();
 
         if (Circular)
         {
@@ -50,7 +49,8 @@ public class DemonSleep : SleepNode
 
         if (triggered) // Basic trigger animation
         {
-            startTriggeredSpeed += triggerAcceleration * delta;
+            startTriggeredSpeed += triggerAcceleration * delta *
+                (currentGameState == GameState.Awake ? 1 : 2.5f) ;
 
             float dist;
             (innerEye.GlobalPosition, dist) = Utils.MoveTowardsReturnDistance(innerEye.GlobalPosition, playerPosition, startTriggeredSpeed * delta);
@@ -63,6 +63,8 @@ public class DemonSleep : SleepNode
                 for (int i = 0; i < spawnAmount; i++)
                     DemonSpawner.Instance.SpawnBasicDemon();
                 }
+
+                DemonSpawner.Instance.sleepSpots.Remove(positionIndex);
             }
         else
         {
@@ -80,23 +82,26 @@ public class DemonSleep : SleepNode
             }
 
             // Eye opening vs collision tracking
-            if (spawnAge < spawnDuration)
+            if (openTimer < openDuration)
             {
-                spawnAge = Mathf.Min(spawnAge + delta, spawnDuration);
+                openTimer = Mathf.Min(openTimer + delta, openDuration);
 
                 if (Circular)
                 {
-                    outerEye.Scale = new Vector2( radius / 10, radius / 10 * spawnAge / spawnDuration);
+                    outerEye.Scale = new Vector2( radius / 10, radius / 10 * (
+                        opening ? openTimer / openDuration : 1 - openTimer / openDuration));
                 }
                 else
                 {
                     if (halfHeight > halfLength)
-                        outerEye.Scale = new Vector2( halfLength / 10, halfHeight / 10 * spawnAge / spawnDuration);
+                        outerEye.Scale = new Vector2( halfLength / 10, halfHeight / 10 * (
+                        opening ? openTimer / openDuration : 1 - openTimer / openDuration));
                     else
-                        outerEye.Scale = new Vector2( halfLength / 10 * spawnAge / spawnDuration, halfHeight / 10);
+                        outerEye.Scale = new Vector2( halfLength / 10 * 
+                        ( opening ? openTimer / openDuration : 1 - openTimer / openDuration), halfHeight / 10);
                 }
             }
-            else
+            else if (currentGameState == GameState.Awake)
             {
                 if (Circular)
                 {
@@ -124,10 +129,12 @@ public class DemonSleep : SleepNode
 
     protected override void UpdateGameState(GameState newGameState)
     {
-        if (newGameState == GameState.Dreaming)
-        {
-            QueueFree();
-        }
+        openTimer = 0;
+        opening = newGameState == GameState.Awake;
+
+        
+        outerEye.Modulate = newGameState == GameState.Awake ? GameSettings.colorLight : GameSettings.colorDark;
+        innerEye.Modulate = newGameState == GameState.Awake ? GameSettings.colorDark : GameSettings.colorLight;
     }
 
 }

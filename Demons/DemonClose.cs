@@ -17,6 +17,16 @@ public class DemonClose : DemonBasic
         Bitable = false;
     }
 
+    protected override void ProcessAwake(float delta)
+    {
+        if (!Bitable)
+        {
+            // Flicker to show invulnerability
+            Modulate = (int)(GameManager.GetGameTime() * 3) % 2 == 1 ? 
+                GameSettings.colorLight : GameSettings.colorDark;
+        }
+    }
+
     protected override void ProcessDreaming(float delta)
     {
         base.ProcessDreaming(delta);

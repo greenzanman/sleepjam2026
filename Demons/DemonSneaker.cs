@@ -18,6 +18,8 @@ public class DemonSneaker : Demon
         // Modulate = Colors.White;
         sheepPolygon.Modulate = GameSettings.colorLight;
         demonPolygons.Visible = true;
+
+        PrevGameState = GameState.Awake;
     }
     
     protected override void UpdateGameState(GameState newGameState)

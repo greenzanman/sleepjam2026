@@ -101,7 +101,7 @@ public partial class Demon : SleepNode
     }
 
     // Sets hp to 0 and IsAlive to false; also calls OnDeath()
-    protected virtual void Die() { hp = 0; IsAlive = false; OnDeath(); }
+    public virtual void Die() { hp = 0; IsAlive = false; OnDeath(); }
     
     // Death logic
     protected virtual void OnDeath() {}

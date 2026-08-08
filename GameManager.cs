@@ -187,6 +187,14 @@ public class GameManager : Node
         {
             DebugDraw = !DebugDraw;
         }
+
+        if (Input.IsActionJustPressed("key_debugKill"))
+        {
+            foreach (Demon demon in demons)
+            {
+                demon.Die();
+            }
+        }
     }
 
     private void ProcessCleanup(float delta)

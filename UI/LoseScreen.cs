@@ -29,10 +29,10 @@ public class LoseScreen : Control
 		// StatKeeper.PrintStats();
 	}
 
-	private void OnRetryButtonPressed()
-	{
-		GetTree().ChangeSceneTo(gameScene);
-	}
+    private void OnRetryButtonPressed()
+    {
+        GetTree().ChangeSceneTo(gameScene);
+    }
 
 	private void OnMenuButtonPressed()
 	{

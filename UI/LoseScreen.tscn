@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://UI/Godot-Fontpack/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/connection_ii/ConnectionII.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://UI/LoseScreen.cs" type="Script" id=2]
@@ -9,6 +9,13 @@
 
 [sub_resource type="DynamicFont" id=1]
 size = 43
+outline_size = 1
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 28
+outline_size = 1
+extra_spacing_char = 3
 font_data = ExtResource( 1 )
 
 [sub_resource type="DynamicFont" id=2]
@@ -24,7 +31,8 @@ menuScene = ExtResource( 4 )
 animationPlayerPath = NodePath("Node2D/KinematicBody2D/AnimationPlayer")
 retryButtonPath = NodePath("RetryButton")
 menuButtonPath = NodePath("MenuButton")
-statLabelPath = NodePath("StatLabel")
+tempStatLabelPath = NodePath("TempStatLabel")
+permStatLabelPath = NodePath("PermStatLabel")
 
 [node name="Background" type="ColorRect" parent="."]
 modulate = Color( 0.00784314, 0.0196078, 0.141176, 1 )
@@ -47,20 +55,37 @@ text = "YOUR SHEEP ARE DEAD"
 align = 1
 valign = 1
 
-[node name="StatLabel" type="Label" parent="."]
+[node name="TempStatLabel" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 0.45
+anchor_top = 0.466
 anchor_right = 0.5
-anchor_bottom = 0.45
-margin_left = -233.0
-margin_right = 233.0
-margin_bottom = 56.0
+anchor_bottom = 0.466
+margin_left = -500.0
+margin_top = -28.0
+margin_right = 500.0
+margin_bottom = 28.0
 custom_colors/font_color = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_outline_modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_color_shadow = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_fonts/font = SubResource( 1 )
+text = "Place Holder"
 align = 1
 valign = 1
+
+[node name="PermStatLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.45
+anchor_right = 0.5
+anchor_bottom = 0.45
+margin_left = -579.0
+margin_top = 70.0
+margin_right = -113.0
+margin_bottom = 126.0
+custom_colors/font_color = Color( 0.54902, 0.54902, 0.666667, 1 )
+custom_colors/font_outline_modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
+custom_colors/font_color_shadow = Color( 0.54902, 0.54902, 0.666667, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "Place Holder"
 
 [node name="RetryButton" type="Button" parent="."]
 anchor_left = 0.5
@@ -87,7 +112,7 @@ text = "MENU"
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 640, 325 )
+position = Vector2( 512, 350 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"

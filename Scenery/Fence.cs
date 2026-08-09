@@ -8,6 +8,7 @@ public class Fence : SleepRect
     public override void _Ready()
     {
         // Don't need to be too safe since fences are permenant
+        GD.Print($"Adding Fence {Name} {Fences.Count}");
         Fences.Add(this);
     }
 

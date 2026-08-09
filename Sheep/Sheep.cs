@@ -32,14 +32,16 @@ public class Sheep : SleepNode
     
     // All movement
     // sprites
-    private Sprite sheepSprite;
+    private Node2D spritePosition;
+    private Sprite sheepSpriteBack;
+    private Sprite sheepSpriteFront;
     private AnimationPlayer animPlayer;
     private bool onFence = false;
     private const float fenceHopHeight = 12f;
     private const float fenceHopRiseRate = 70f;
     private const float fenceHopFallRate = 100f;
     
-    
+    private static PackedScene sparkleScene = GD.Load<PackedScene>("res://Sheep/Sparkle.tscn");
 
     float stateTimer = 0;
     Vector2 stateDirection;
@@ -53,7 +55,7 @@ public class Sheep : SleepNode
     float overallPadding = 20;
 
     // Fleeing
-    const float fleeSpeed = 180;
+    const float fleeSpeed = 140;
     const float fleeSettleSpeed = 10;
     const int fleeCoolSubradius = 10;
     const float maxFleeDuration = 1.5f;
@@ -90,15 +92,17 @@ public class Sheep : SleepNode
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        base._Ready();
 
-        GameManager.AddSheep(this);
-        sheepSprite = GetNode<Sprite>("Sprite");
+        spritePosition = GetNode<Node2D>("SpritePosition");
+        sheepSpriteFront = GetNode<Sprite>("SpritePosition/SpriteFront");
+        sheepSpriteBack = GetNode<Sprite>("SpritePosition/SpriteBack");
         animPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
 
-        cursedIndicator = GetNode<Node2D>("Sprite/CursedIndicator");
-        rebelliousIndicator = GetNode<Node2D>("Sprite/RebelliousIndicator");
+        cursedIndicator = GetNode<Node2D>("SpritePosition/CursedIndicator");
+        rebelliousIndicator = GetNode<Node2D>("SpritePosition/RebelliousIndicator");
 
+        base._Ready();
+        GameManager.AddSheep(this);
         EnterNewState(SheepState.Idle);
     
         IsAlive = true;
@@ -176,6 +180,25 @@ public class Sheep : SleepNode
             Position.y > GameSettings.PenTop && Position.y < GameSettings.PenBottom;
     }
 
+    protected override void SetModulate(bool awake)
+    {
+        if (awake)
+        {
+            sheepSpriteFront.Modulate = GameSettings.colorLight;
+            sheepSpriteBack.Modulate = GameSettings.colorDark;
+            cursedIndicator.Modulate = GameSettings.colorLight;
+            rebelliousIndicator.Modulate = GameSettings.colorLight;
+        }
+        else
+        {
+            sheepSpriteFront.Modulate = GameSettings.colorDark;
+            sheepSpriteBack.Modulate = GameSettings.colorLight;
+            cursedIndicator.Modulate = GameSettings.colorDark;
+            rebelliousIndicator.Modulate = GameSettings.colorDark;
+        }
+    }
+
+
     protected override void Process(float delta)
     {
         animPlayer.PlaybackSpeed = GameManager.GetTimeDilation();
@@ -184,7 +207,7 @@ public class Sheep : SleepNode
         if (hurtTimer > 0)
         {
             hurtTimer -= delta;
-            Modulate = (int)(hurtTimer * GameSettings.FlashRate) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+            SetModulate( (int)(hurtTimer * GameSettings.FlashRate) % 2 == 1 );
             if (hurtTimer <= 0)
             {
                 InPlay = false;
@@ -299,12 +322,21 @@ public class Sheep : SleepNode
 
         // Crossing fence
         if (onFence && !nowOnFence)
+        {
             GameManager.IncrementSleepCount();
+        }
+        if (!onFence && nowOnFence)
+        {
+            Node2D sparkle = sparkleScene.Instance<Node2D>();
+            sparkle.Position = Position + new Vector2(random.Next(-40, 40),
+                random.Next(-40, -30));
+            GameManager.WorldRoot.AddChild(sparkle);
+        }
 
         float targetOffset = nowOnFence ? fenceHopHeight : 0;
-        float currentOffset = Utils.MoveTowards(sheepSprite.Position.y, -targetOffset, 
+        float currentOffset = Utils.MoveTowards(spritePosition.Position.y, -targetOffset, 
             delta * (nowOnFence ? fenceHopRiseRate : fenceHopFallRate));
-        sheepSprite.Position = new Vector2(0, currentOffset);
+        spritePosition.Position = new Vector2(0, currentOffset);
 
         onFence = nowOnFence;
         
@@ -505,7 +537,7 @@ public class Sheep : SleepNode
         // always sleep in night  
         if (GetGameState() == GameState.Dreaming)
         {
-            sheepSprite.Position = Vector2.Zero;  // incase bro jumped
+            spritePosition.Position = Vector2.Zero;  // incase bro jumped
             if (animPlayer.CurrentAnimation != "sleep")
             {
                 animPlayer.Play("sleep");
@@ -532,8 +564,9 @@ public class Sheep : SleepNode
 
             animPlayer.PlaybackSpeed *= Mathf.Min(stateSpeed / wanderSpeed, 1.5f);
 
-            sheepSprite.FlipH = stateDirection.x < 0; 
-                
+            sheepSpriteFront.FlipH = stateDirection.x < 0; 
+            sheepSpriteBack.FlipH = stateDirection.x < 0;
+
             return;
         }
         else

@@ -41,6 +41,7 @@ public class DemonSpawner : SleepNode
     {
         Instance = this;
 
+        GameManager.Instance.ResetWorldRoot(); // Hacky fix to get restarts to work
         demonBasicScene = GD.Load<PackedScene>("res://Demons/DemonBasic.tscn");
         demonCloseScene = GD.Load<PackedScene>("res://Demons/DemonClose.tscn");
         demonSheepScene = GD.Load<PackedScene>("res://Demons/DemonSheep.tscn");
@@ -99,6 +100,9 @@ public class DemonSpawner : SleepNode
         }
 
         int sheepCount = GameManager.GetSheep().Count;
+        if (sheepCount == 0) // Temp fix for sheep not being initialized yet
+            sheepCount = 100;
+
         // After night 4, rebellious sheep can bump up numbers
         bool shouldSpawnRebelliousSheep = nightCount >= rebelliousNight && sheepCount >= GameSettings.defaultSheep && sheepCount < GameSettings.maxSheep;
         bool shouldSpawnNormalSheep = sheepCount < GameSettings.defaultSheep;
@@ -110,7 +114,8 @@ public class DemonSpawner : SleepNode
             shouldSpawnNormalSheep = false;
         }
 
-        bool shouldSpawnSleepers = nightCount > sleeperNight;
+        // Disable sleepers, no existing sprites
+        bool shouldSpawnSleepers = false; //nightCount > sleeperNight;
         bool shouldSpawnCreepers = nightCount >= creeperNight;
         bool shouldSpawnClose = nightCount >= closeNight;
         bool shouldCurseSheep = nightCount >= curseNight;

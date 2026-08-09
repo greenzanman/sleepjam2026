@@ -35,10 +35,9 @@ public class Sheep : SleepNode
     private Sprite sheepSprite;
     private AnimationPlayer animPlayer;
     private bool onFence = false;
-    private Tween fenceHopTween;
     private const float fenceHopHeight = 12f;
-    private const float fenceHopRiseDuration = 0.18f;
-    private const float fenceHopFallDuration = 0.14f;
+    private const float fenceHopRiseRate = 70f;
+    private const float fenceHopFallRate = 100f;
     
     
 
@@ -60,8 +59,6 @@ public class Sheep : SleepNode
     const float maxFleeDuration = 1.5f;
     const float minFleeDuration = 0.4f;
     const float fleeDistance = 250;
-    const float barkEaseOutPower = 2.4f;
-    const float barkMinSpeedScale = 0.2f;
     float fleeDuration = 0;
 
     // Bark consecutive speedup
@@ -98,13 +95,7 @@ public class Sheep : SleepNode
         GameManager.AddSheep(this);
         sheepSprite = GetNode<Sprite>("Sprite");
         animPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
-        fenceHopTween = GetNodeOrNull<Tween>("FenceHopTween");
-        if (fenceHopTween == null)
-        {
-            fenceHopTween = new Tween();
-            fenceHopTween.Name = "FenceHopTween";
-            AddChild(fenceHopTween);
-        }
+
         cursedIndicator = GetNode<Node2D>("Sprite/CursedIndicator");
         rebelliousIndicator = GetNode<Node2D>("Sprite/RebelliousIndicator");
 
@@ -133,13 +124,13 @@ public class Sheep : SleepNode
             if (isComboBark)
             {
                 currentFleeTopSpeed = fleeSpeed * barkComboSpeedMultiplier;
-                currentFleeAcceleration = movementAcceleration * barkComboAccelerationMultiplier;
+                //currentFleeAcceleration = movementAcceleration * barkComboAccelerationMultiplier;
             }
             else
             {
                 // base movement if not combo
                 currentFleeTopSpeed = fleeSpeed;
-                currentFleeAcceleration = movementAcceleration;
+                //currentFleeAcceleration = movementAcceleration;
             }
 
             float newStateTimer = maxFleeDuration - (maxFleeDuration - minFleeDuration) * fleeLength / fleeDistance;
@@ -153,13 +144,13 @@ public class Sheep : SleepNode
             stateDirection = Mathf.IsZeroApprox(fleeLength) ? Vector2.Left : potentialFleeDirection / fleeLength;
             EnterNewState(SheepState.Fleeing);
 
-            if (isComboBark)
-            {
-                currentVelocity += stateDirection * (currentFleeTopSpeed * barkComboImpulseFactor);
-                float maxComboVelocity = currentFleeTopSpeed * 1.35f;
-                if (currentVelocity.LengthSquared() > maxComboVelocity * maxComboVelocity)
-                    currentVelocity = currentVelocity.Normalized() * maxComboVelocity;
-            }
+            // if (isComboBark)
+            // {
+            //     currentVelocity += stateDirection * (currentFleeTopSpeed * barkComboImpulseFactor);
+            //     float maxComboVelocity = currentFleeTopSpeed * 1.35f;
+            //     if (currentVelocity.LengthSquared() > maxComboVelocity * maxComboVelocity)
+            //         currentVelocity = currentVelocity.Normalized() * maxComboVelocity;
+            // }
         }
     }
 
@@ -170,7 +161,6 @@ public class Sheep : SleepNode
             hurtTimer = 0.25f;
             IsAlive = false;
             animPlayer.Play("die");
-            animPlayer.PlaybackSpeed = 1.0f;
         }
     }
 
@@ -188,6 +178,8 @@ public class Sheep : SleepNode
 
     protected override void Process(float delta)
     {
+        animPlayer.PlaybackSpeed = GameManager.GetTimeDilation();
+
         // Hurt display
         if (hurtTimer > 0)
         {
@@ -254,20 +246,23 @@ public class Sheep : SleepNode
         // i set up accel and decel.
         // - accel is for sheep being pushed like a bark
         // - decel for sheep settling down. so it keeps some inertia yknow
-        Vector2 targetVelocity = stateDirection * stateSpeed;
-        bool isAbouttaFlip = currentVelocity.Dot(targetVelocity) < 0;
-        bool isSpeedingUp = targetVelocity.LengthSquared() > currentVelocity.LengthSquared();
-        bool needsFastResponse = isAbouttaFlip || isSpeedingUp;
+        // Vector2 targetVelocity = stateDirection * stateSpeed;
+        // bool isAbouttaFlip = currentVelocity.Dot(targetVelocity) < 0;
+        // bool isSpeedingUp = targetVelocity.LengthSquared() > currentVelocity.LengthSquared();
+        // bool needsFastResponse = isAbouttaFlip || isSpeedingUp;
        
-        float currentAcceleration = state == SheepState.Fleeing ? currentFleeAcceleration : movementAcceleration;
-        float responseRate = needsFastResponse ? currentAcceleration : movementDeceleration;
-        float decay = Mathf.Exp(-responseRate * delta);
-        float velocityBlend = 1f - decay;
-        currentVelocity = currentVelocity.LinearInterpolate(targetVelocity, velocityBlend);
+        // float currentAcceleration = state == SheepState.Fleeing ? currentFleeAcceleration : movementAcceleration;
+        // float responseRate = needsFastResponse ? currentAcceleration : movementDeceleration;
+        // float decay = Mathf.Exp(-responseRate * delta);
+        // float velocityBlend = 1f - decay;
+        // currentVelocity = currentVelocity.LinearInterpolate(targetVelocity, velocityBlend);
 
         // Keeping without bounds (maybe we don't want this; i.e. spook too far and they run off forever)
-        Vector2 newPosition = Position + delta * currentVelocity;
 
+        Vector2 newPosition = Position + delta * stateDirection * stateSpeed;
+        if ( state == SheepState.Fleeing && stateTimer < 1)
+            newPosition = Position + delta * stateDirection * stateSpeed
+                * (stateTimer / 1.25f + 0.2f);
 
         if (newPosition.x > GameSettings.ScreenWidth - overallPadding)
             newPosition.x = GameSettings.ScreenWidth - overallPadding;
@@ -279,10 +274,10 @@ public class Sheep : SleepNode
             newPosition.y = overallPadding;
 
         // leeway to stop velcity when blocked
-        if (Mathf.IsEqualApprox(newPosition.x, overallPadding) || Mathf.IsEqualApprox(newPosition.x, GameSettings.ScreenWidth - overallPadding))
-            currentVelocity.x = 0;
-        if (Mathf.IsEqualApprox(newPosition.y, overallPadding) || Mathf.IsEqualApprox(newPosition.y, GameSettings.ScreenHeight - overallPadding))
-            currentVelocity.y = 0;
+        // if (Mathf.IsEqualApprox(newPosition.x, overallPadding) || Mathf.IsEqualApprox(newPosition.x, GameSettings.ScreenWidth - overallPadding))
+        //     currentVelocity.x = 0;
+        // if (Mathf.IsEqualApprox(newPosition.y, overallPadding) || Mathf.IsEqualApprox(newPosition.y, GameSettings.ScreenHeight - overallPadding))
+        //     currentVelocity.y = 0;
 
         Position = newPosition;
 
@@ -306,32 +301,14 @@ public class Sheep : SleepNode
         if (onFence && !nowOnFence)
             GameManager.IncrementSleepCount();
 
-        if (onFence != nowOnFence)
-        {
-            Vector2 targetOffset = nowOnFence ? Vector2.Up * fenceHopHeight : Vector2.Zero;
-            float hopDuration = nowOnFence ? fenceHopRiseDuration : fenceHopFallDuration;
-            BeginFenceHopTween(targetOffset, hopDuration);
-        }
+        float targetOffset = nowOnFence ? fenceHopHeight : 0;
+        float currentOffset = Utils.MoveTowards(sheepSprite.Position.y, -targetOffset, 
+            delta * (nowOnFence ? fenceHopRiseRate : fenceHopFallRate));
+        sheepSprite.Position = new Vector2(0, currentOffset);
 
         onFence = nowOnFence;
         
         UpdateAnimation();
-    }
-
-    private void BeginFenceHopTween(Vector2 targetOffset, float duration)
-    {
-        float safeDuration = Mathf.Max(0.001f, duration);
-        fenceHopTween.StopAll();
-        fenceHopTween.InterpolateProperty(
-            sheepSprite,
-            "position",
-            sheepSprite.Position,
-            targetOffset,
-            safeDuration,
-            Tween.TransitionType.Back,
-            Tween.EaseType.Out
-        );
-        fenceHopTween.Start();
     }
 
     private void EnterNewState( SheepState newState )
@@ -498,26 +475,12 @@ public class Sheep : SleepNode
         }
     }
 
-    private Vector2 GetGoal()
-    {
-        return Position + stateDirection * stateTimer * stateSpeed;
-    }
-
     private void ProcessIdle(float delta)
     {
     }
 
     private void ProcessFleeing(float delta)
     {
-        // bark easing only apply when actually fleeing
-        if (fleeDuration > 0 && stateSpeed > (fleeSettleSpeed + 0.001f))
-        {
-            // see my comment in the whiteboard
-            float remainingRatio = Mathf.Clamp(stateTimer / fleeDuration, 0, 1);
-            float easeOutFactor = Mathf.Max(barkMinSpeedScale, Mathf.Pow(remainingRatio, barkEaseOutPower));
-            stateSpeed = Mathf.Lerp(fleeSettleSpeed, currentFleeTopSpeed, easeOutFactor);
-        }
-
         // Fleeing decrements faster in the pen
         stateTimer -= InPen() ? delta * 1f : 0;
 
@@ -546,7 +509,6 @@ public class Sheep : SleepNode
             if (animPlayer.CurrentAnimation != "sleep")
             {
                 animPlayer.Play("sleep");
-                animPlayer.PlaybackSpeed = 1.0f;
             }
             return;
         }
@@ -556,40 +518,28 @@ public class Sheep : SleepNode
             if (animPlayer.CurrentAnimation != "jump")
             {
                 animPlayer.Play("jump");
-                animPlayer.PlaybackSpeed = 1.0f;
             }
             return;
         }
 
         // need a certain amt of speed to do run
-        if (currentVelocity.LengthSquared() > 4)
+        if (stateSpeed > 0 && stateDirection != Vector2.Zero)
         {
             string targetAnim = state == SheepState.Fleeing ? "run_eyes" : "run";
             
             if (animPlayer.CurrentAnimation != targetAnim)
                 animPlayer.Play(targetAnim);
 
-            animPlayer.PlaybackSpeed = stateSpeed / wanderSpeed;
+            animPlayer.PlaybackSpeed *= Mathf.Min(stateSpeed / wanderSpeed, 1.5f);
 
-            if (currentVelocity.x != 0)
-                sheepSprite.FlipH = currentVelocity.x < 0; 
+            sheepSprite.FlipH = stateDirection.x < 0; 
                 
-            return;
-                
-        }
-        
-        if (state == SheepState.Idle) {
-            if (animPlayer.CurrentAnimation != "sleep") {
-                animPlayer.Play("sleep");
-                animPlayer.PlaybackSpeed = 1.0f;
-            }
             return;
         }
         else
         {
             if (animPlayer.CurrentAnimation != "stand") {
                 animPlayer.Play("stand");
-                animPlayer.PlaybackSpeed = 1.0f;
             }
         }
     }

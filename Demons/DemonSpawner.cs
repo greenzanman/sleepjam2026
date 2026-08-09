@@ -125,10 +125,14 @@ public class DemonSpawner : SleepNode
         if (shouldSpawnNormalSheep)
         {
             SetNthBreakpoint(random.Next(4), sleepEvent.normalSheep);
+            if (sheepCount == 1) // Don't drop below 3 at a time, maybe?
+                SetNthBreakpoint(random.Next(4), sleepEvent.normalSheep);
         }
         else if (shouldSpawnRebelliousSheep)
         {
-            SetNthBreakpoint(random.Next(4), sleepEvent.rebellious);    
+            SetNthBreakpoint(random.Next(4), sleepEvent.rebellious);
+            if (sheepCount == 1) // Don't drop below 3 at a time, maybe?
+                SetNthBreakpoint(random.Next(4), sleepEvent.rebellious);
         }
 
         // Total number of demon spawns
@@ -373,14 +377,17 @@ public class DemonSpawner : SleepNode
     public void SpawnSleeper()
     {
         // Spots all filled already, somehow
-        if (sleepSpots.Count == 8)
+        if (sleepSpots.Count == 7)
             return;
     
         // Find a position that's not taken
-        int[] openSpots = new int[8 - sleepSpots.Count];
+        int[] openSpots = new int[7 - sleepSpots.Count];
         int index = 0;
         for (int i = 0; i < 8; i++)
         {
+            // No longer use top sleeper
+            if (i == 1)
+                continue;
             if (!sleepSpots.Contains(i))
             {
                 openSpots[index] = i;

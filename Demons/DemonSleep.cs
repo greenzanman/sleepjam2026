@@ -84,7 +84,7 @@ public class DemonSleep : SleepNode
             // Eye opening vs collision tracking
             if (openTimer < openDuration)
             {
-                openTimer = Mathf.Min(openTimer + delta, openDuration);
+                openTimer = Mathf.Min(openTimer + delta * (opening ? 1 : 3), openDuration);
 
                 if (Circular)
                 {
@@ -135,6 +135,9 @@ public class DemonSleep : SleepNode
         
         outerEye.Modulate = newGameState == GameState.Awake ? GameSettings.colorLight : GameSettings.colorDark;
         innerEye.Modulate = newGameState == GameState.Awake ? GameSettings.colorDark : GameSettings.colorLight;
+
+        if (triggered)
+            outerEye.Modulate = GameSettings.colorInvisible;
     }
 
 }

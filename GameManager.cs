@@ -35,6 +35,10 @@ public class GameManager : Node
 
     private int nightCount = 0;
 
+    private bool transitioning = false;
+    private float sleepTransitionTimer = 0;
+    private const float sleepTransitionDurationClose = 1.5f;
+    private const float sleepTransitionDurationOpen = 1.5f;
     
 
     // Sheep
@@ -56,8 +60,24 @@ public class GameManager : Node
 
     public override void _Process(float delta)
     {
+        // Transitions
+        if (transitioning)
+        {
+            if (sleepTransitionTimer > 0 && sleepTransitionTimer - delta <= 0)
+            {
+                SetGameState( gameState == GameState.Awake ? GameState.Dreaming : GameState.Awake);    
+            }
+            
+            sleepTransitionTimer -= delta;
+
+            if (sleepTransitionTimer <= -sleepTransitionDurationOpen)
+                transitioning = false;
+        }
+
         float trueDelta = delta * GetTimeDilation();
+
         gameTime += trueDelta;
+
         ProcessSleep(trueDelta);
 #if DEBUG
         ProcessDebug(trueDelta);
@@ -79,10 +99,23 @@ public class GameManager : Node
 
     public static bool GetPaused() { return Instance.isPaused; }
 
-    public static float GetTimeDilation()
+    public static float GetTimeDilation() { return Instance.InternalGetTimeDilation(); }
+    public float InternalGetTimeDilation()
     {
-        if (Instance.isPaused)
+        if (isPaused)
             return 0;
+
+        // Slowdowns
+        if (transitioning) {
+            if (sleepTransitionTimer > 0)
+            {
+                return sleepTransitionTimer / sleepTransitionDurationClose;
+            }
+            else
+            {
+                return Mathf.Min( -sleepTransitionTimer / sleepTransitionDurationOpen, 1);
+            }
+        }
 
         return Instance.timeDilation;
     }
@@ -131,14 +164,36 @@ public class GameManager : Node
     }
     public static float GetSleepCount() { return Instance.sleepCount; }
 
+    // Int is 0 - not transition, 1 - closing, 2 - opening
+    public static (float, int) GetSleepTransitionRatio() { return Instance.InternalTransitionRatio(); }
+    private (float, int) InternalTransitionRatio()
+    {
+        if (transitioning)
+        {
+            if (sleepTransitionTimer > 0)
+            {
+                return (1 - sleepTransitionTimer / sleepTransitionDurationClose, 1);
+            }
+            else
+            {
+                return (1 - Mathf.Min( -sleepTransitionTimer / sleepTransitionDurationOpen, 1), 2);
+            }
+        }
+        else
+        {
+            return (0, 0);
+        }
+    }
+
 // MARK: Process functions
     private void ProcessSleep(float delta)
     {
         if (gameState == GameState.Awake)
         {
-            if (sleepCount >= MAX_SLEEPCOUNT)
+            if (sleepCount >= MAX_SLEEPCOUNT && !transitioning)
             {
-                gameState = GameState.Dreaming;
+                transitioning = true;
+                sleepTransitionTimer = sleepTransitionDurationClose;
                 nightCount += 1;
                 StatKeeper.NumSleepInstances += 1;
                 wakeRate = 1;
@@ -149,16 +204,18 @@ public class GameManager : Node
 #if DEBUG
             if (cyclePaused) sleepCount += delta;
 #endif
-            sleepCount -= delta * wakeRate;
+            if (!transitioning)
+                sleepCount -= delta * wakeRate;
 
             // Sleep decreases faster if nothing to do
             if (demons.Count == 0)
                 wakeRate += delta * 2;
                 
-            if (sleepCount <= 0)
+            if (sleepCount <= 0 && !transitioning)
             {
+                transitioning = true;
+                sleepTransitionTimer = sleepTransitionDurationClose;
                 sleepCount = 0;
-                gameState = GameState.Awake;
             }
         }
     }
@@ -175,7 +232,7 @@ public class GameManager : Node
         if (Input.IsActionJustPressed("key_debugIncrementSleep"))
         {
             //GD.Print("Incrementing sleep count");
-            sleepCount += 2;
+            IncrementSleepCount(2);
         }
 
         if (Input.IsActionJustPressed("key_debugDecrementSleep"))
@@ -253,7 +310,16 @@ public class GameManager : Node
 
             GD.Print("All sheep dead, game over");
             inPlay = false;
+
+            // Temp fix
+            Fence.Fences.Clear();
+            sleepCount = 0;
+            sheep.Clear();
+            demons.Clear();
+
+            GetTree().ReloadCurrentScene();
             GetTree().ChangeScene("res://UI/LoseScreen.tscn");
+            
         }
     }
 }

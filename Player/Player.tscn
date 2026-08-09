@@ -1,9 +1,16 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Player/Player.cs" type="Script" id=1]
+[ext_resource path="res://Sounds/puppy-bark.mp3" type="AudioStream" id=2]
 
 [node name="Player" type="Node2D"]
 script = ExtResource( 1 )
+audioBarkPath = NodePath("AudioStreamPlayer")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 polygon = PoolVector2Array( 16, 16, 16, -16, -16, -16, -16, 16 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 2 )
+volume_db = -23.4
+pitch_scale = 0.86

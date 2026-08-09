@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://UI/Godot-Fontpack/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/connection_ii/ConnectionII.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://UI/MenuScene.cs" type="Script" id=2]
 [ext_resource path="res://TestScene.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Sounds/bleep-effect.mp3" type="AudioStream" id=4]
+[ext_resource path="res://Sounds/Sheepfold - QuickSounds-Faded-In.mp3" type="AudioStream" id=5]
 
 [sub_resource type="DynamicFont" id=1]
 size = 43
@@ -17,6 +19,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
 gameScene = ExtResource( 3 )
+audioHoverPath = NodePath("ButtonHoverPlayer")
 
 [node name="Background" type="ColorRect" parent="."]
 modulate = Color( 0.00784314, 0.0196078, 0.141176, 1 )
@@ -49,3 +52,12 @@ margin_top = -35.0
 margin_right = 47.0
 custom_fonts/font = SubResource( 2 )
 text = "PLAY"
+
+[node name="ButtonHoverPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = -35.0
+
+[node name="SheepAmbiencePlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+volume_db = -10.0
+autoplay = true

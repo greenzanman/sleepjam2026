@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/wolf-ambient.mp3-05960a57b46a42c85a16ac84e2803417.mp3str"
+
+[deps]
+
+source_file="res://Sounds/wolf-ambient.mp3"
+dest_files=[ "res://.import/wolf-ambient.mp3-05960a57b46a42c85a16ac84e2803417.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 public class Player : SleepNode
 {
-
+    [Export] NodePath audioBarkPath;
+    private AudioStreamPlayer audioBark;
+    
     private Vector2 velocity;
     private const float ACCELERATION = 5000;
     private const float MAXSPEED = 400;
@@ -21,6 +23,8 @@ public class Player : SleepNode
     {
         base._Ready();
         GameManager.SetPlayer(this);
+        
+        audioBark = GetNode<AudioStreamPlayer>(audioBarkPath);
     }
 
     protected override void Process(float delta)
@@ -57,6 +61,8 @@ public class Player : SleepNode
 
         if (barkTimer <= 0 && barkInputBufferTimer > 0)
         {
+            audioBark.Stop();
+            audioBark.Play();
             foreach (Sheep sheep in GameManager.GetSheep())
             {
                 sheep.Bark(Position);

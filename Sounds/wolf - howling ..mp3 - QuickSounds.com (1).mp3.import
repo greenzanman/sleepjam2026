@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/wolf - howling ..mp3 - QuickSounds.com (1).mp3-e9fd553354a46459781fae276fb85721.mp3str"
+
+[deps]
+
+source_file="res://Sounds/wolf - howling ..mp3 - QuickSounds.com (1).mp3"
+dest_files=[ "res://.import/wolf - howling ..mp3 - QuickSounds.com (1).mp3-e9fd553354a46459781fae276fb85721.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

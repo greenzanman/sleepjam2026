@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/Sheep Single 1 - QuickSounds.com.mp3-504461e70526d6a3af997d0a669b46fb.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Sheep Single 1 - QuickSounds.com.mp3"
+dest_files=[ "res://.import/Sheep Single 1 - QuickSounds.com.mp3-504461e70526d6a3af997d0a669b46fb.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

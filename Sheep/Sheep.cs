@@ -3,6 +3,13 @@ using System;
 
 public class Sheep : SleepNode
 {
+    [Export] NodePath audioBaahPath;
+    AudioStreamPlayer audioBaah;
+    
+    [Export] NodePath audioJumpPath;
+    AudioStreamPlayer audioJump;
+    
+    private float deathVolume = -25.0f;
     private enum SheepState
     {
         Idle,
@@ -102,6 +109,9 @@ public class Sheep : SleepNode
         EnterNewState(SheepState.Idle);
     
         IsAlive = true;
+        
+        audioBaah = GetNode<AudioStreamPlayer>(audioBaahPath);
+        audioJump = GetNode<AudioStreamPlayer>(audioJumpPath);
     }
 
     public void Bark( Vector2 position)
@@ -161,7 +171,19 @@ public class Sheep : SleepNode
             hurtTimer = 0.25f;
             IsAlive = false;
             animPlayer.Play("die");
+            PlayDeathSound();
         }
+    }
+    
+    private void PlayDeathSound() 
+    {
+        AudioStreamPlayer deathSound = new AudioStreamPlayer();
+        deathSound.Stream = GD.Load<AudioStream>("res://Sounds/u_b32baquv5u-8-bit-explosion-11-340459.mp3");
+        deathSound.VolumeDb = deathVolume;
+        deathSound.PitchScale = 0.8f;
+        GameManager.WorldRoot.AddChild(deathSound);
+        deathSound.Play();
+        deathSound.Connect("finished", deathSound, "queue_free");
     }
 
     public virtual void Destroy()
@@ -232,6 +254,8 @@ public class Sheep : SleepNode
             break;
             // Flee from bark source
             case SheepState.Fleeing:
+                audioBaah.Stop();
+                audioBaah.Play();
                 ProcessFleeing(delta);
             break;
             // Idle around a point outside the region
@@ -298,8 +322,12 @@ public class Sheep : SleepNode
         }
 
         // Crossing fence
-        if (onFence && !nowOnFence)
+        if (onFence && !nowOnFence) {
+            audioJump.Stop();
+            audioJump.Play();
             GameManager.IncrementSleepCount();
+        }
+            
 
         float targetOffset = nowOnFence ? fenceHopHeight : 0;
         float currentOffset = Utils.MoveTowards(sheepSprite.Position.y, -targetOffset, 

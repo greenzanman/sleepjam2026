@@ -301,7 +301,7 @@ public class GameManager : Node
         }
         
         // Lose State
-        if(sheep.Count <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
+        if(sheep.Count <= 0 && GetTree().CurrentScene.Name == "World")
         {
             foreach (Demon d in demons)
             {

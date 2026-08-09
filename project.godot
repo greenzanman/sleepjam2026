@@ -32,6 +32,12 @@ window/stretch/aspect="keep"
 
 common/drop_mouse_on_gui_input_disabled=true
 
+[importer_defaults]
+
+mp3={
+"loop": false
+}
+
 [input]
 
 key_left={

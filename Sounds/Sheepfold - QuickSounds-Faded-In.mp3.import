@@ -11,5 +11,5 @@ dest_files=[ "res://.import/Sheepfold - QuickSounds-Faded-In.mp3-d283586b9364604
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0

@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 public partial class Demon : SleepNode
@@ -26,7 +27,7 @@ public partial class Demon : SleepNode
 
     protected float retargetTimer = 0;
     
-    
+    Random random = new Random();
 
     protected static Texture hiddenFront = GD.Load<Texture>("res://Demons/wolf-fadeyFront.png");
     protected static Texture hiddenBack = GD.Load<Texture>("res://Demons/wolf-fadeyBack.png");
@@ -147,6 +148,7 @@ public partial class Demon : SleepNode
         deathSound.VolumeDb = deathVolume;
         deathSound.PitchScale = 0.9f;
         GameManager.WorldRoot.AddChild(deathSound);
+        deathSound.PitchScale = 0.8f + (float) random.NextDouble() * 0.3f;
         deathSound.Play();
         deathSound.Connect("finished", deathSound, "queue_free");
     }

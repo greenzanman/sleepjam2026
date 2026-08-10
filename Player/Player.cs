@@ -24,6 +24,7 @@ public class Player : SleepNode
     const float biteRange = 100;
     const float misDisplayDuration = 0.5f;
     const int angleCount = 64;
+    Random random = new Random();
     Vector2[] anglePoints = new Vector2[angleCount + 1];
 
     public override void _Ready()
@@ -91,6 +92,7 @@ public class Player : SleepNode
         if (barkTimer <= 0 && barkInputBufferTimer > 0)
         {
             audioBark.Stop();
+            audioBark.PitchScale = 0.8f + (float) random.NextDouble() * 0.3f;
             audioBark.Play(0.1f);
             foreach (Sheep sheep in GameManager.GetSheep())
             {
@@ -144,6 +146,9 @@ public class Player : SleepNode
             if (closestDemon != null)
             {
                 closestDemon.Bite();
+                audioBark.Stop();
+                audioBark.PitchScale = 0.6f + (float) random.NextDouble() * 0.3f;
+                audioBark.Play(0.1f);
             }
             else if (!hurtDemonInRange)
             {
@@ -160,7 +165,7 @@ public class Player : SleepNode
         if (currentGameState == GameState.Awake)
         {
             float fill = 60 * Mathf.Max(barkTimer + fakeBarkBuffer, 0) / (barkCooldown + fakeBarkBuffer);
-            DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), GameSettings.colorDark, 5);
+            DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), GameSettings.colorLight, 5);
         }
         else
         {

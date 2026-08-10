@@ -222,7 +222,7 @@ public class DemonSpawner : SleepNode
             if (sleepEvent == sleepEvent.demonBasic || sleepEvent == sleepEvent.demonClose)
             {
                 spawnedBasic++;
-                if (spawnedBasic >= 6)
+                if (spawnedBasic >= 7)
                     break;
             }
 

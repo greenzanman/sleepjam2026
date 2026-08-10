@@ -464,7 +464,7 @@ public class Sheep : SleepNode
             case SheepState.Idle:
                 int chosenMode = random.Next(10);
 
-                if (chosenMode <= (rebellious ? 4 : 3) || onFence) // Never stand still on fence
+                if (chosenMode <= (rebellious ? 2 : 3) || onFence) // Never stand still on fence
                 {
                     // Find new idle location
                     Vector2 idleGoal = new Vector2(random.Next(GameSettings.PenLeft + edgePadding, GameSettings.PenRight - edgePadding),

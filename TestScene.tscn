@@ -329,16 +329,16 @@ position = Vector2( 525, 507 )
 
 [node name="Sheep2" parent="." instance=ExtResource( 4 )]
 unique_name_in_owner = true
-position = Vector2( 718, 460 )
+position = Vector2( 718, 440 )
 
 [node name="Sheep3" parent="." instance=ExtResource( 4 )]
-position = Vector2( 718, 501 )
+position = Vector2( 758, 494 )
 
 [node name="Sheep4" parent="." instance=ExtResource( 4 )]
-position = Vector2( 611, 440 )
+position = Vector2( 587, 432 )
 
 [node name="Sheep5" parent="." instance=ExtResource( 4 )]
-position = Vector2( 684, 567 )
+position = Vector2( 692, 555 )
 
 [node name="WolfHowlSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 13 )

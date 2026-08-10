@@ -154,7 +154,7 @@ public class Player : SleepNode
         if (currentGameState == GameState.Awake)
         {
             float fill = 60 * Mathf.Max(barkTimer + fakeBarkBuffer, 0) / (barkCooldown + fakeBarkBuffer);
-            DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), GameSettings.colorDark, 5);
+            DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), GameSettings.colorLight, 5);
         }
         else
         {

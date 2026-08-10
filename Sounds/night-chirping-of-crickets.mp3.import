@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/night-chirping-of-crickets.mp3-4a93344b647c6049b1f799a7ce6cced5.mp3str"
+
+[deps]
+
+source_file="res://Sounds/night-chirping-of-crickets.mp3"
+dest_files=[ "res://.import/night-chirping-of-crickets.mp3-4a93344b647c6049b1f799a7ce6cced5.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

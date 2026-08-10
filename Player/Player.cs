@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public class Player : SleepNode
 {
-
+    private AudioStreamPlayer audioBark;
+    
     private Vector2 velocity;
     private const float ACCELERATION = 5000;
     private const float MAXSPEED = 400;
@@ -30,6 +31,8 @@ public class Player : SleepNode
         sprite = GetNode<Node2D>("Polygon2D");
         base._Ready();
         GameManager.SetPlayer(this);
+        
+        audioBark = GetNode<AudioStreamPlayer>("AudioStreamPlayer");
 
         float radius = biteRange - 20;
         for (int i = 0; i <= angleCount; i++)
@@ -37,6 +40,7 @@ public class Player : SleepNode
             float angle = Mathf.Pi * 2 / angleCount * i;
             anglePoints[i] = new Vector2(radius * -Mathf.Cos(angle), radius * Mathf.Sin(angle));
         }
+
     }
 
     protected override void Process(float delta)
@@ -86,6 +90,8 @@ public class Player : SleepNode
 
         if (barkTimer <= 0 && barkInputBufferTimer > 0)
         {
+            audioBark.Stop();
+            audioBark.Play(0.1f);
             foreach (Sheep sheep in GameManager.GetSheep())
             {
                 sheep.Bark(Position);

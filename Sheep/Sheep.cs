@@ -3,6 +3,10 @@ using System;
 
 public class Sheep : SleepNode
 {
+    AudioStreamPlayer audioBaah;
+    AudioStreamPlayer audioJump;
+    
+    private float deathVolume = -25.0f;
     private enum SheepState
     {
         Idle,
@@ -106,6 +110,9 @@ public class Sheep : SleepNode
         EnterNewState(SheepState.Idle);
     
         IsAlive = true;
+        
+        audioBaah = GetNode<AudioStreamPlayer>("SheepSoundPlayer");
+        audioJump = GetNode<AudioStreamPlayer>("JumpSoundPlayer");
     }
 
     public void Bark( Vector2 position)
@@ -165,7 +172,19 @@ public class Sheep : SleepNode
             hurtTimer = 0.25f;
             IsAlive = false;
             animPlayer.Play("die");
+            PlayDeathSound();
         }
+    }
+    
+    private void PlayDeathSound() 
+    {
+        AudioStreamPlayer deathSound = new AudioStreamPlayer();
+        deathSound.Stream = GD.Load<AudioStream>("res://Sounds/u_b32baquv5u-8-bit-explosion-11-340459.mp3");
+        deathSound.VolumeDb = deathVolume;
+        deathSound.PitchScale = 0.8f;
+        GameManager.WorldRoot.AddChild(deathSound);
+        deathSound.Play();
+        deathSound.Connect("finished", deathSound, "queue_free");
     }
 
     public virtual void Destroy()
@@ -255,6 +274,8 @@ public class Sheep : SleepNode
             break;
             // Flee from bark source
             case SheepState.Fleeing:
+                audioBaah.Stop();
+                audioBaah.Play();
                 ProcessFleeing(delta);
             break;
             // Idle around a point outside the region
@@ -327,6 +348,8 @@ public class Sheep : SleepNode
         }
         if (!onFence && nowOnFence)
         {
+            audioJump.Stop();
+            audioJump.Play();
             Node2D sparkle = sparkleScene.Instance<Node2D>();
             sparkle.Position = Position + new Vector2(random.Next(-40, 40),
                 random.Next(-40, -30));

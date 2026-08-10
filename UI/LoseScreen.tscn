@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://UI/Godot-Fontpack/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/connection_ii/ConnectionII.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://UI/LoseScreen.cs" type="Script" id=2]
@@ -6,6 +6,9 @@
 [ext_resource path="res://UI/MenuScene.tscn" type="PackedScene" id=4]
 [ext_resource path="res://icon.png" type="Texture" id=5]
 [ext_resource path="res://UI/frolic_over_fence-loop.tres" type="Animation" id=6]
+[ext_resource path="res://Sounds/bleep-effect.mp3" type="AudioStream" id=7]
+[ext_resource path="res://Sounds/Sheep Single 1 - QuickSounds.com.mp3" type="AudioStream" id=8]
+[ext_resource path="res://Sounds/jump-retro-game-jam-fx-1-00-03.mp3" type="AudioStream" id=9]
 
 [sub_resource type="DynamicFont" id=1]
 size = 43
@@ -25,6 +28,7 @@ animationPlayerPath = NodePath("Node2D/KinematicBody2D/AnimationPlayer")
 retryButtonPath = NodePath("RetryButton")
 menuButtonPath = NodePath("MenuButton")
 statLabelPath = NodePath("StatLabel")
+audioHoverPath = NodePath("ButtonHoverPlayer")
 
 [node name="Background" type="ColorRect" parent="."]
 modulate = Color( 0.00784314, 0.0196078, 0.141176, 1 )
@@ -87,7 +91,7 @@ text = "MENU"
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 640, 325 )
+position = Vector2( 128, 325 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"
@@ -96,3 +100,16 @@ anims/frolic_over_fence-loop = ExtResource( 6 )
 
 [node name="Sprite" type="Sprite" parent="Node2D/KinematicBody2D"]
 texture = ExtResource( 5 )
+
+[node name="ButtonHoverPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 7 )
+volume_db = -35.0
+
+[node name="SheepSoundPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 8 )
+volume_db = -25.0
+pitch_scale = 2.05
+
+[node name="JumpSoundPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 9 )
+volume_db = -30.0

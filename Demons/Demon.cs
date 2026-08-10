@@ -2,6 +2,15 @@ using Godot;
 
 public partial class Demon : SleepNode
 {
+    private AudioStreamPlayer audioAttack;
+    protected float attackVolume = -25.0f;
+    
+    private AudioStreamPlayer audioConstant;
+    protected float constantVolume = -15.0f;
+    
+    protected float deathVolume = -20.0f;
+    
+    
     public bool IsAlive = true;
     public bool InPlay = true;
     // Can this enemy be attacked
@@ -16,6 +25,8 @@ public partial class Demon : SleepNode
     protected Sheep targetSheep;
 
     protected float retargetTimer = 0;
+    
+    
 
     protected static Texture hiddenFront = GD.Load<Texture>("res://Demons/wolf-fadeyFront.png");
     protected static Texture hiddenBack = GD.Load<Texture>("res://Demons/wolf-fadeyBack.png");
@@ -28,6 +39,18 @@ public partial class Demon : SleepNode
         InPlay = true;
 
         hp = 2;
+        audioAttack = new AudioStreamPlayer();
+        audioAttack.Stream = GD.Load<AudioStream>("res://Sounds/Wolf Attacking - QuickSounds.com.mp3");
+        audioAttack.VolumeDb = attackVolume;
+        AddChild(audioAttack);
+        
+        audioConstant = new AudioStreamPlayer();
+        audioConstant.Stream = GD.Load<AudioStream>("res://Sounds/dog-breathing.mp3");
+        audioConstant.VolumeDb = constantVolume;
+        audioConstant.PitchScale = 0.5f;
+        AddChild(audioConstant);
+        audioConstant.Play();
+        
     }
 
     public virtual void Initialize(int side)
@@ -37,6 +60,7 @@ public partial class Demon : SleepNode
 
     public void Destroy()
     {
+        audioConstant.Stop();
         QueueFree();
     }
 
@@ -109,7 +133,23 @@ public partial class Demon : SleepNode
     }
 
     // Sets hp to 0 and IsAlive to false; also calls OnDeath()
-    public virtual void Die() { hp = 0; IsAlive = false; OnDeath(); }
+    public virtual void Die() { 
+        PlayDeathSound();
+        hp = 0; 
+        IsAlive = false; 
+        OnDeath(); 
+    }
+    
+    private void PlayDeathSound() 
+    {
+        AudioStreamPlayer deathSound = new AudioStreamPlayer();
+        deathSound.Stream = GD.Load<AudioStream>("res://Sounds/dog-shriek.mp3");
+        deathSound.VolumeDb = deathVolume;
+        deathSound.PitchScale = 0.9f;
+        GameManager.WorldRoot.AddChild(deathSound);
+        deathSound.Play();
+        deathSound.Connect("finished", deathSound, "queue_free");
+    }
     
     // Death logic
     protected virtual void OnDeath() {}
@@ -146,6 +186,10 @@ public partial class Demon : SleepNode
 
                 if (dist < killDistance)
                 {
+                    audioConstant.Stop();
+                    audioAttack.Stop();
+                    audioAttack.Play();
+                    audioConstant.Play();
                     // TODO: Clean this up a bit
                     targetSheep.Bite();
 

@@ -10,18 +10,26 @@ public class LoseScreen : Control
     [Export] NodePath retryButtonPath;
     [Export] NodePath menuButtonPath;
     [Export] NodePath statLabelPath;
-    
     private Label statLabel;
+    
+    [Export] NodePath audioHoverPath;
+    private AudioStreamPlayer audioHover;
+    
+    
     
     private int statsShown = 0;
     public override void _Ready()
     {
         GetNode<Button>(retryButtonPath).Connect("pressed", this, nameof(OnRetryButtonPressed));
+        GetNode<Button>(retryButtonPath).Connect("mouse_entered", this, nameof(OnButtonHovered));
+        
         GetNode<Button>(menuButtonPath).Connect("pressed", this, nameof(OnMenuButtonPressed));
+        GetNode<Button>(menuButtonPath).Connect("mouse_entered", this, nameof(OnButtonHovered));
         
         statLabel = GetNode<Label>(statLabelPath);
         GetNode<AnimationPlayer>(animationPlayerPath).Play("frolic_over_fence-loop");
         // StatKeeper.PrintStats();
+        audioHover = GetNode<AudioStreamPlayer>(audioHoverPath);
     }
 
     private void OnRetryButtonPressed()
@@ -33,6 +41,12 @@ public class LoseScreen : Control
     private void OnMenuButtonPressed()
     {
         GetTree().ChangeSceneTo(menuScene);
+    }
+    
+    private void OnButtonHovered() 
+    {
+        audioHover.Stop();
+        audioHover.Play();
     }
     
     private void SetStatLabelText() 

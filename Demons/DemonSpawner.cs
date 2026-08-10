@@ -13,6 +13,9 @@ public class DemonSpawner : SleepNode
     private PackedScene demonCreeperScene;
     private PackedScene demonSleeperCircleScene;
     private PackedScene demonSleeperRectScene;
+    
+    [Export] NodePath audioWolfPath;
+    private AudioStreamPlayer audioWolf;
 
     private Random random = new Random();
     public static DemonSpawner Instance { get; private set; }
@@ -50,6 +53,8 @@ public class DemonSpawner : SleepNode
         demonSleeperCircleScene = GD.Load<PackedScene>("res://Demons/DemonSleep.tscn");
         demonSleeperRectScene = GD.Load<PackedScene>("res://Demons/DemonSleepRect.tscn");
         sheepScene = GD.Load<PackedScene>("res://Sheep/Sheep.tscn");
+            
+        //audioWolf = GetNode<AudioStreamPlayer>(audioWolfPath);
 
         previousSleepiness = 0;
 

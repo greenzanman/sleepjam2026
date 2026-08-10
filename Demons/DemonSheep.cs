@@ -4,11 +4,15 @@ using Godot;
 
 public class DemonSheep : Demon
 {
+    protected Sprite spriteFront;
+    protected Sprite spriteBack;
     private bool hasBeenNight = false;
     private Sheep cursedSheep;
 
     public override void _Ready()
     {
+        spriteFront = GetNode<Sprite>("SpriteBack");
+        spriteBack = GetNode<Sprite>("SpriteFront");
         base._Ready();
 
         // Stationary version
@@ -49,12 +53,41 @@ public class DemonSheep : Demon
         }
     }
 
+
+    protected override void SetModulate(bool awake)
+    {
+        if (awake)
+        {
+            spriteFront.Modulate = GameSettings.colorLight;
+            spriteBack.Modulate = GameSettings.colorDark;
+        }
+        else
+        {
+            spriteFront.Modulate = GameSettings.colorDark;
+            spriteBack.Modulate = GameSettings.colorLight;
+        }
+    }
+
     protected override void OnDeath()
     {
         if (cursedSheep != null)
             cursedSheep.cursed = false;
         StatKeeper.NumSheepPurified += 1;
     }
+
+    protected override void Process(float delta)
+    {
+        base.Process(delta);
+ 
+        if (hitTimer <= 0)
+        {
+            int frame = (int) (GameManager.GetGameTime() * 3) % 4;
+            if (frame == 3) frame = 1;
+            spriteFront.Frame = frame;
+            spriteBack.Frame = frame;
+        }
+    }
+
 
     protected override void ProcessDreaming(float delta)
     {

@@ -109,15 +109,25 @@ public class Player : SleepNode
     {
         Demon closestDemon = null;
         float closestDistance = biteRange;
+
+        bool hurtDemonInRange = false;
         if (Input.IsActionJustPressed("key_action"))
         {
             // TODO: Improve performance of all these iteration distance checks
             foreach (Demon demon in GameManager.GetDemons())
             {
-                if (!demon.IsAlive || !demon.Bitable || demon.IsHurt())
+                if (!demon.Bitable)
                     continue;
                     
                 float distance = (demon.Position - Position).Length();
+
+                // Not displaying indicator if demon is just in hitstate
+                if (distance <= biteRange && (!demon.IsAlive || demon.IsHurt()))
+                {
+                    hurtDemonInRange = true;
+                    continue;
+                }
+
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
@@ -129,7 +139,7 @@ public class Player : SleepNode
             {
                 closestDemon.Bite();
             }
-            else
+            else if (!hurtDemonInRange)
             {
                 misTimer = misDisplayDuration;
             }

@@ -204,12 +204,14 @@ frame = 1
 [node name="RebelliousIndicator" type="Polygon2D" parent="SpritePosition"]
 visible = false
 position = Vector2( 0, -50 )
+z_index = 5
 polygon = PoolVector2Array( 16, -16, 0, 16, -16, -16, 0, -8 )
 
 [node name="CursedIndicator" type="Sprite" parent="SpritePosition"]
 visible = false
 position = Vector2( 0, -60 )
 scale = Vector2( 0.2, 0.2 )
+z_index = 5
 texture = ExtResource( 4 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

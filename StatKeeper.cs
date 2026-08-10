@@ -39,6 +39,7 @@ public class StatKeeper : Node
         NumSheepDeaths = 0;
         NumSleepInstances = 0;
         NumSheepPurified = 0;
+        NumBarks = 0;
     }
     
     public static void PrintStats()

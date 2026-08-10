@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="Sleepy Jam"
-run/main_scene="res://TestScene.tscn"
+run/main_scene="res://UI/MenuScene.tscn"
 config/icon="res://icon.png"
 
 [autoload]

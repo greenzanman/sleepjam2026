@@ -342,6 +342,7 @@ public class Sheep : SleepNode
         if (onFence && !nowOnFence)
         {
             GameManager.IncrementSleepCount();
+            StatKeeper.NumFenceJumps++;
         }
         if (!onFence && nowOnFence)
         {

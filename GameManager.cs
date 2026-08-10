@@ -61,6 +61,8 @@ public class GameManager : Node
     public void ResetWorldRoot()
     {
         WorldRoot = GetTree().Root.GetNode<Node2D>("World");
+        transitioning = true;
+        sleepTransitionTimer = 0;
     }
 
     public override void _Process(float delta)

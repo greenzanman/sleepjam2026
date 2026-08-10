@@ -114,8 +114,12 @@ public class Player : SleepNode
 
         Position = newPosition;
 
-        spriteFront.FlipH = velocity.x < 0;
-        spriteBack.FlipH = velocity.x < 0;
+        // keep last sprite direction after horizontal movement stops
+        if (Mathf.Abs(velocity.x) > 0.01f)
+        {
+            spriteFront.FlipH = velocity.x < 0;
+            spriteBack.FlipH = velocity.x < 0;
+        }
         // TODO: Keep within boundaries
 
     }

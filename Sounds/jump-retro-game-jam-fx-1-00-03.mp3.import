@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/jump-retro-game-jam-fx-1-00-03.mp3-c5c0dbb0a40c514e9c7c70dfd3c4ea4a.mp3str"
+
+[deps]
+
+source_file="res://Sounds/jump-retro-game-jam-fx-1-00-03.mp3"
+dest_files=[ "res://.import/jump-retro-game-jam-fx-1-00-03.mp3-c5c0dbb0a40c514e9c7c70dfd3c4ea4a.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

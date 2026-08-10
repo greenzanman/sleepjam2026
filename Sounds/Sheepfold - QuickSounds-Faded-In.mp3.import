@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/Sheepfold - QuickSounds-Faded-In.mp3-d283586b936460444975a89346ea99d4.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Sheepfold - QuickSounds-Faded-In.mp3"
+dest_files=[ "res://.import/Sheepfold - QuickSounds-Faded-In.mp3-d283586b936460444975a89346ea99d4.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

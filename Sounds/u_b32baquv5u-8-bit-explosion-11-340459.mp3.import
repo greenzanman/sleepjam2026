@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/u_b32baquv5u-8-bit-explosion-11-340459.mp3-1f856a49990e17a948151ed72a8ce8bb.mp3str"
+
+[deps]
+
+source_file="res://Sounds/u_b32baquv5u-8-bit-explosion-11-340459.mp3"
+dest_files=[ "res://.import/u_b32baquv5u-8-bit-explosion-11-340459.mp3-1f856a49990e17a948151ed72a8ce8bb.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

@@ -49,6 +49,18 @@ public abstract class SleepNode : Node2D
     {
         if (newGameState == GameState.Awake)
         {
+            SetModulate(true);
+        }
+        else
+        {
+            SetModulate(false);
+        }
+    }
+
+    protected virtual void SetModulate( bool awake )
+    {
+        if (awake)
+        {
             Modulate = GameSettings.colorLight;
         }
         else

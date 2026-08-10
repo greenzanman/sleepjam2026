@@ -55,7 +55,11 @@ public class GameManager : Node
         nightCount = 0;
 
         WorldRoot = GetTree().Root.GetNode<Node2D>("World");
+    }
 
+    public void ResetWorldRoot()
+    {
+        WorldRoot = GetTree().Root.GetNode<Node2D>("World");
     }
 
     public override void _Process(float delta)
@@ -128,6 +132,11 @@ public class GameManager : Node
     public static int GetNightCount()
     {
         return Instance.nightCount;
+    }
+
+    public static void SetNightCount(int count)
+    {
+        Instance.nightCount = count;
     }
     
     public static GameState GetGameState() {return Instance.gameState;}
@@ -254,9 +263,14 @@ public class GameManager : Node
 
         if (Input.IsActionJustPressed("key_debugKill"))
         {
-            foreach (Demon demon in demons)
+            // foreach (Demon demon in demons)
+            // {
+            //     demon.Die();
+            // }
+        
+            foreach (Sheep sheep in sheep)
             {
-                demon.Die();
+                sheep.Bite();
             }
         }
 
@@ -301,7 +315,7 @@ public class GameManager : Node
         }
         
         // Lose State
-        if(sheep.Count <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
+        if(sheep.Count <= 0 && GetTree().CurrentScene.Name == "World")
         {
             foreach (Demon d in demons)
             {
@@ -317,7 +331,6 @@ public class GameManager : Node
             sheep.Clear();
             demons.Clear();
 
-            GetTree().ReloadCurrentScene();
             GetTree().ChangeScene("res://UI/LoseScreen.tscn");
             
         }

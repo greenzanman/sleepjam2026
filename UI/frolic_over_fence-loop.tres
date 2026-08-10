@@ -31,7 +31,7 @@ tracks/1/keys = {
 "transitions": PoolRealArray( 1 ),
 "values": [ {
 "args": [  ],
-"method": "SetStatLabelText"
+"method": "SetLabelText"
 } ]
 }
 tracks/2/type = "audio"

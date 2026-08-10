@@ -3,10 +3,7 @@ using System;
 
 public class Sheep : SleepNode
 {
-    [Export] NodePath audioBaahPath;
     AudioStreamPlayer audioBaah;
-    
-    [Export] NodePath audioJumpPath;
     AudioStreamPlayer audioJump;
     
     private float deathVolume = -25.0f;
@@ -114,8 +111,8 @@ public class Sheep : SleepNode
     
         IsAlive = true;
         
-        audioBaah = GetNode<AudioStreamPlayer>(audioBaahPath);
-        audioJump = GetNode<AudioStreamPlayer>(audioJumpPath);
+        audioBaah = GetNode<AudioStreamPlayer>("SheepSoundPlayer");
+        audioJump = GetNode<AudioStreamPlayer>("JumpSoundPlayer");
     }
 
     public void Bark( Vector2 position)

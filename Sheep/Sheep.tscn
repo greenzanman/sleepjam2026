@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Sheep/Sheep.cs" type="Script" id=1]
 [ext_resource path="res://Sheep/sheepFront.png" type="Texture" id=2]
@@ -189,8 +189,6 @@ data = PoolByteArray( 73, 68, 51, 3, 0, 0, 0, 0, 88, 72, 84, 83, 83, 69, 0, 0, 0
 
 [node name="Sheep" type="Node2D"]
 script = ExtResource( 1 )
-audioBaahPath = NodePath("SheepSoundPlayer")
-audioJumpPath = NodePath("JumpSoundPlayer")
 
 [node name="SpritePosition" type="Node2D" parent="."]
 

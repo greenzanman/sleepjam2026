@@ -55,7 +55,7 @@ public class GameManager : Node
         gameTime = 0;
         nightCount = 0;
 
-        WorldRoot = GetTree().Root.GetNode<Node2D>("World");
+        // WorldRoot = GetTree().Root.GetNode<Node2D>("World");
     }
 
     public void ResetWorldRoot()

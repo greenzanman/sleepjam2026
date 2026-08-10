@@ -40,6 +40,10 @@ public partial class Demon : SleepNode
         QueueFree();
     }
 
+    public bool IsHurt()
+    {
+        return hitTimer > 0;
+    }
     public void Bite()
     {
         hp -= 1;

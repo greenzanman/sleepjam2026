@@ -84,9 +84,6 @@ public class GameManager : Node
         gameTime += trueDelta;
 
         ProcessSleep(trueDelta);
-#if DEBUG
-        ProcessDebug(trueDelta);
-#endif
         ProcessCleanup(trueDelta);
     }
 
@@ -169,9 +166,6 @@ public class GameManager : Node
 
 // MARK: Sleep stuff
     public static void IncrementSleepCount( int amount = 1) { 
-#if DEBUG
-    if (!Instance.cyclePaused)
-#endif
         Instance.sleepCount = Math.Min(Instance.sleepCount + amount, MAX_SLEEPCOUNT); 
     }
     public static float GetSleepCount() { return Instance.sleepCount; }
@@ -213,9 +207,6 @@ public class GameManager : Node
         }
         else
         {
-#if DEBUG
-            if (cyclePaused) sleepCount += delta;
-#endif
             if (!transitioning)
                 sleepCount -= delta * wakeRate;
 

@@ -128,9 +128,6 @@ public partial class Demon : SleepNode
                 InPlay = false;
             }
         }
-#if DEBUG
-        Update();
-#endif
     }
 
     // Sets hp to 0 and IsAlive to false; also calls OnDeath()
@@ -209,18 +206,4 @@ public partial class Demon : SleepNode
     {
         Retarget();
     }
-
-#if DEBUG
-    public override void _Draw()
-    {
-        base._Draw();
-        if (GameManager.DebugDraw)
-        {
-            if (targetSheep != null)
-            {
-                DrawLine(Vector2.Zero, targetSheep.Position - Position, Colors.Red);
-            }
-        }
-    }
-#endif // #if DEBUG
 }

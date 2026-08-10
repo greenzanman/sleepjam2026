@@ -227,14 +227,6 @@ public class DemonSpawner : SleepNode
 
             demonBudget -= cost;
         }
-#if DEBUG
-        string breakpoints = "";
-        foreach (int breakpoint in sleepBreakpoints)
-        {
-            breakpoints += breakpoint.ToString();
-        }
-        GD.Print($"Breakpoints: {breakpoints}");
-#endif
     }
 
     private bool SetNthBreakpoint(int index, sleepEvent sleepEvent)

@@ -7,6 +7,7 @@
 resource_name = "frolic_over_fence-loop"
 length = 6.5
 loop = true
+step = 0.25
 tracks/0/type = "value"
 tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
@@ -14,10 +15,10 @@ tracks/0/loop_wrap = false
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0.5, 1, 1.5, 2, 2.5, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75 ),
-"transitions": PoolRealArray( 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05 ),
+"times": PoolRealArray( 0, 0.5, 1, 1.5, 2, 2.5, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75 ),
+"transitions": PoolRealArray( 1e+06, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05, 1e-05 ),
 "update": 1,
-"values": [ Vector2( 128, 325 ), Vector2( 256, 350 ), Vector2( 384, 325 ), Vector2( 512, 350 ), Vector2( 640, 325 ), Vector2( 750, 350 ), Vector2( 875, 325 ), Vector2( 1000, 350 ), Vector2( 1152, 325 ), Vector2( 1280, 350 ), Vector2( 1408, 325 ) ]
+"values": [ Vector2( -100, 325 ), Vector2( 128, 325 ), Vector2( 256, 350 ), Vector2( 384, 325 ), Vector2( 512, 350 ), Vector2( 640, 325 ), Vector2( 750, 350 ), Vector2( 875, 325 ), Vector2( 1000, 350 ), Vector2( 1152, 325 ), Vector2( 1280, 350 ), Vector2( 1408, 325 ) ]
 }
 tracks/1/type = "method"
 tracks/1/path = NodePath("../..")
@@ -78,26 +79,18 @@ tracks/3/keys = {
 "end_offset": 2.9,
 "start_offset": 0.0,
 "stream": ExtResource( 2 )
-}, {
-"end_offset": 2.9,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
-}, {
-"end_offset": 2.9,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
-}, {
-"end_offset": 2.9,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
-}, {
-"end_offset": 2.9,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
-}, {
-"end_offset": 2.9,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
 } ],
-"times": PoolRealArray( 0.5, 1, 1.5, 2, 2.5, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75 )
+"times": PoolRealArray( 0.5, 1.5, 2.5, 3.75, 4.75, 5.75 )
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("Sprite:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.5, 1, 1.5, 2, 2.5, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 ]
 }

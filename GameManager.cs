@@ -24,6 +24,7 @@ public class GameManager : Node
     // Generic Game Settings
     private float timeDilation = 1;
     private bool isPaused = false; 
+    private float gameOverTimer = 0;
 
     // Sleep settings
     private GameState gameState = GameState.Awake;
@@ -136,6 +137,8 @@ public class GameManager : Node
 
     public static void SetNightCount(int count)
     {
+        Instance.gameOverTimer = 0;
+        StatKeeper.ResetStats();
         Instance.nightCount = count;
     }
     
@@ -317,22 +320,25 @@ public class GameManager : Node
         // Lose State
         if(sheep.Count <= 0 && GetTree().CurrentScene.Name == "World")
         {
-            foreach (Demon d in demons)
+            gameOverTimer += delta;
+            if (gameOverTimer > 0.5f)
             {
-                d.Destroy();
+                foreach (Demon d in demons)
+                {
+                    d.Destroy();
+                }
+
+                GD.Print("All sheep dead, game over");
+                inPlay = false;
+
+                // Temp fix
+                Fence.Fences.Clear();
+                sleepCount = 0;
+                sheep.Clear();
+                demons.Clear();
+
+                GetTree().ChangeScene("res://UI/LoseScreen.tscn");
             }
-
-            GD.Print("All sheep dead, game over");
-            inPlay = false;
-
-            // Temp fix
-            Fence.Fences.Clear();
-            sleepCount = 0;
-            sheep.Clear();
-            demons.Clear();
-
-            GetTree().ChangeScene("res://UI/LoseScreen.tscn");
-            
         }
     }
 }

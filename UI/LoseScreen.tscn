@@ -4,7 +4,7 @@
 [ext_resource path="res://UI/LoseScreen.cs" type="Script" id=2]
 [ext_resource path="res://TestScene.tscn" type="PackedScene" id=3]
 [ext_resource path="res://UI/MenuScene.tscn" type="PackedScene" id=4]
-[ext_resource path="res://icon.png" type="Texture" id=5]
+[ext_resource path="res://Sheep/sheepFront.png" type="Texture" id=5]
 [ext_resource path="res://UI/frolic_over_fence-loop.tres" type="Animation" id=6]
 [ext_resource path="res://Sounds/bleep-effect.mp3" type="AudioStream" id=7]
 [ext_resource path="res://Sounds/Sheep Single 1 - QuickSounds.com.mp3" type="AudioStream" id=8]
@@ -91,7 +91,7 @@ text = "MENU"
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 128, 325 )
+position = Vector2( 256, 350 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"
@@ -99,7 +99,12 @@ reset_on_save = false
 anims/frolic_over_fence-loop = ExtResource( 6 )
 
 [node name="Sprite" type="Sprite" parent="Node2D/KinematicBody2D"]
+modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
+scale = Vector2( 0.5, 0.5 )
 texture = ExtResource( 5 )
+hframes = 4
+vframes = 4
+frame = 1
 
 [node name="ButtonHoverPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 7 )

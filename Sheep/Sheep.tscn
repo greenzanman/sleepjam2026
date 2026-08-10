@@ -31,10 +31,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.0416667, 0.125 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
+"times": PoolRealArray( 0.0416667, 0.125 ),
+"transitions": PoolRealArray( 1, 1 ),
 "update": 1,
-"values": [ 0, 1, 2 ]
+"values": [ 1, 2 ]
 }
 
 [sub_resource type="Animation" id=4]
@@ -116,6 +116,7 @@ texture = ExtResource( 2 )
 offset = Vector2( 0, -60 )
 hframes = 4
 vframes = 4
+frame = 2
 
 [node name="RebelliousIndicator" type="Polygon2D" parent="Sprite"]
 visible = false

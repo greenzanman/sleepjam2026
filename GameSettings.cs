@@ -16,4 +16,7 @@ public static class GameSettings
     public static int PenBottom = 615;
     public static int FenceX = 640;
     public static int FlashRate = 10;
+
+    public static int defaultSheep = 5;
+    public static int maxSheep = 8;
 }

@@ -5,6 +5,7 @@ public abstract class SleepNode : Node2D
 {
 
     private GameState mostRecentGamestate;
+    protected GameState currentGameState;
 
     public override void _Ready()
     {
@@ -16,7 +17,7 @@ public abstract class SleepNode : Node2D
     {
         float trueDelta = delta * GameManager.GetTimeDilation();
 
-        GameState currentGameState = GameManager.GetGameState();
+        currentGameState = GameManager.GetGameState();
         if (currentGameState != mostRecentGamestate)
         {
             mostRecentGamestate = currentGameState;

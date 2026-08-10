@@ -11,9 +11,11 @@ public class Player : SleepNode
 
     // Awake state
     const float barkCooldown = 0.5f;
+    const float barkInputBufferWindow = 0.12f;
     const float fakeBarkBuffer = 0.05f; // Bar is slightly slower so it 'feels' better
 
     float barkTimer = 0;
+    float barkInputBufferTimer = 0;
 
     public override void _Ready()
     {
@@ -48,7 +50,12 @@ public class Player : SleepNode
     protected override void ProcessAwake(float delta)
     {
         barkTimer = Mathf.Max(-10, barkTimer - delta);
-        if (barkTimer <= 0 && Input.IsActionJustPressed("key_action"))
+
+        barkInputBufferTimer = Mathf.Max(0, barkInputBufferTimer - delta);
+        if (Input.IsActionJustPressed("key_action"))
+            barkInputBufferTimer = barkInputBufferWindow;
+
+        if (barkTimer <= 0 && barkInputBufferTimer > 0)
         {
             foreach (Sheep sheep in GameManager.GetSheep())
             {
@@ -56,6 +63,7 @@ public class Player : SleepNode
             }
 
             barkTimer = barkCooldown;
+            barkInputBufferTimer = 0;
             StatKeeper.NumBarks += 1;
         }
     }

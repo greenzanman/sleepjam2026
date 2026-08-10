@@ -22,6 +22,7 @@ public class DemonSheep : Demon
 
         // Find a target sheep
         List<Sheep> validSheep = new List<Sheep>();
+
         // Prioritize sheep in pen (maybe also prioritize not wandering? rare occurence)
         foreach (Sheep sheep in GameManager.GetSheep())
             if (sheep.IsAlive && !sheep.cursed && !sheep.rebellious && sheep.InPen())
@@ -32,10 +33,10 @@ public class DemonSheep : Demon
             foreach (Sheep sheep in GameManager.GetSheep())
                 if (sheep.IsAlive && !sheep.cursed)
                     validSheep.Add(sheep);
-
+    
         
         // Assumes its day
-        if (validSheep.Count == 0)
+        if (validSheep.Count <= 1)
         {
             GD.Print("DemonSheep could find no valid targets");
             InPlay = false;

@@ -13,9 +13,11 @@ public enum GameState
 public class GameManager : Node
 {
     public static GameManager Instance { get; private set; }
+    public static Node2D WorldRoot;
 
     public static bool DebugDraw = false;
 
+    private bool inPlay = true;
     private Player player;
     private float gameTime;
 
@@ -27,19 +29,22 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 24;
+    public const int MAX_SLEEPCOUNT = 16;
     private float wakeRate = 1; // Increases once there are no demons
     private bool cyclePaused = false;
 
+    private int nightCount = 0;
+
+    private bool transitioning = false;
+    private float sleepTransitionTimer = 0;
+    private const float sleepTransitionDurationClose = 1.5f;
+    private const float sleepTransitionDurationOpen = 1.5f;
     
 
     // Sheep
     private HashSet<Sheep> sheep = new HashSet<Sheep>();
-    private int sheepCount = 0;
     // Demons
     private HashSet<Demon> demons = new HashSet<Demon>();
-    private int demonCount = 0;
-    private int noDemonAwakeFactor = 10;
 
     public override void _Ready()
     {
@@ -47,13 +52,32 @@ public class GameManager : Node
         timeDilation = 1;
         isPaused = false;
         gameTime = 0;
-        sheepCount = 0;
+        nightCount = 0;
+
+        WorldRoot = GetTree().Root.GetNode<Node2D>("World");
+
     }
 
     public override void _Process(float delta)
     {
+        // Transitions
+        if (transitioning)
+        {
+            if (sleepTransitionTimer > 0 && sleepTransitionTimer - delta <= 0)
+            {
+                SetGameState( gameState == GameState.Awake ? GameState.Dreaming : GameState.Awake);    
+            }
+            
+            sleepTransitionTimer -= delta;
+
+            if (sleepTransitionTimer <= -sleepTransitionDurationOpen)
+                transitioning = false;
+        }
+
         float trueDelta = delta * GetTimeDilation();
+
         gameTime += trueDelta;
+
         ProcessSleep(trueDelta);
 #if DEBUG
         ProcessDebug(trueDelta);
@@ -63,22 +87,35 @@ public class GameManager : Node
 
 // MARK: Getters and Setters
     public static void SetPlayer( Player inPlayer ) { Instance.player = inPlayer; }
-    public static Player GetPlayerWorldPosition() { return Instance.GetPlayerInternal(); }
-    public Player GetPlayerInternal() { 
-        if (player == null)
+    public static Vector2 GetPlayerWorldPosition() { return Instance.GetPlayerWorldPositionInternal(); }
+    public Vector2 GetPlayerWorldPositionInternal() { 
+        if (player == null || !inPlay)
         {
             GD.PrintErr("Attempted to get player position before it's set");
-            return null;
+            return Vector2.Zero;
         }
-        return player;
+        return player.Position;
     }
 
     public static bool GetPaused() { return Instance.isPaused; }
 
-    public static float GetTimeDilation()
+    public static float GetTimeDilation() { return Instance.InternalGetTimeDilation(); }
+    public float InternalGetTimeDilation()
     {
-        if (Instance.isPaused)
+        if (isPaused)
             return 0;
+
+        // Slowdowns
+        if (transitioning) {
+            if (sleepTransitionTimer > 0)
+            {
+                return sleepTransitionTimer / sleepTransitionDurationClose;
+            }
+            else
+            {
+                return Mathf.Min( -sleepTransitionTimer / sleepTransitionDurationOpen, 1);
+            }
+        }
 
         return Instance.timeDilation;
     }
@@ -86,6 +123,11 @@ public class GameManager : Node
     public static float GetGameTime()
     {
         return Instance.gameTime;
+    }
+
+    public static int GetNightCount()
+    {
+        return Instance.nightCount;
     }
     
     public static GameState GetGameState() {return Instance.gameState;}
@@ -98,22 +140,18 @@ public class GameManager : Node
 
     public static void AddSheep( Sheep newSheep ) { 
         Instance.sheep.Add(newSheep); 
-        Instance.sheepCount += 1;
     }
     public static void RemoveSheep( Sheep oldSheep ) { 
         Instance.sheep.Remove(oldSheep); 
-        Instance.sheepCount -= 1;
     }
     public static ref readonly HashSet<Sheep> GetSheep() { return ref Instance.sheep;} 
     
     public static void AddDemon( Demon newDemon ) { 
         Instance.demons.Add(newDemon); 
-        Instance.demonCount += 1;
     }
     
     public static void RemoveDemon( Demon oldDemon ) { 
         Instance.demons.Remove(oldDemon); 
-        Instance.demonCount -= 1;
     }
     public static ref readonly HashSet<Demon> GetDemons() { return ref Instance.demons;}
 
@@ -126,14 +164,37 @@ public class GameManager : Node
     }
     public static float GetSleepCount() { return Instance.sleepCount; }
 
+    // Int is 0 - not transition, 1 - closing, 2 - opening
+    public static (float, int) GetSleepTransitionRatio() { return Instance.InternalTransitionRatio(); }
+    private (float, int) InternalTransitionRatio()
+    {
+        if (transitioning)
+        {
+            if (sleepTransitionTimer > 0)
+            {
+                return (1 - sleepTransitionTimer / sleepTransitionDurationClose, 1);
+            }
+            else
+            {
+                return (1 - Mathf.Min( -sleepTransitionTimer / sleepTransitionDurationOpen, 1), 2);
+            }
+        }
+        else
+        {
+            return (0, 0);
+        }
+    }
+
 // MARK: Process functions
     private void ProcessSleep(float delta)
     {
         if (gameState == GameState.Awake)
         {
-            if (sleepCount >= MAX_SLEEPCOUNT)
+            if (sleepCount >= MAX_SLEEPCOUNT && !transitioning)
             {
-                gameState = GameState.Dreaming;
+                transitioning = true;
+                sleepTransitionTimer = sleepTransitionDurationClose;
+                nightCount += 1;
                 StatKeeper.NumSleepInstances += 1;
                 wakeRate = 1;
             }
@@ -143,15 +204,18 @@ public class GameManager : Node
 #if DEBUG
             if (cyclePaused) sleepCount += delta;
 #endif
-            sleepCount -= delta * wakeRate;
+            if (!transitioning)
+                sleepCount -= delta * wakeRate;
 
             // Sleep decreases faster if nothing to do
             if (demons.Count == 0)
-                wakeRate += delta;
-            if (sleepCount <= 0)
+                wakeRate += delta * 2;
+                
+            if (sleepCount <= 0 && !transitioning)
             {
+                transitioning = true;
+                sleepTransitionTimer = sleepTransitionDurationClose;
                 sleepCount = 0;
-                gameState = GameState.Awake;
             }
         }
     }
@@ -168,7 +232,7 @@ public class GameManager : Node
         if (Input.IsActionJustPressed("key_debugIncrementSleep"))
         {
             //GD.Print("Incrementing sleep count");
-            sleepCount += 2;
+            IncrementSleepCount(2);
         }
 
         if (Input.IsActionJustPressed("key_debugDecrementSleep"))
@@ -186,6 +250,19 @@ public class GameManager : Node
         if (Input.IsActionJustPressed("key_debugDraw"))
         {
             DebugDraw = !DebugDraw;
+        }
+
+        if (Input.IsActionJustPressed("key_debugKill"))
+        {
+            foreach (Demon demon in demons)
+            {
+                demon.Die();
+            }
+        }
+
+        if (Input.IsActionJustPressed("key_debugTest"))
+        {
+            DemonSpawner.Instance.SpawnSleeper();
         }
     }
 
@@ -224,21 +301,25 @@ public class GameManager : Node
         }
         
         // Lose State
-        if(sheepCount <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
+        if(sheep.Count <= 0 && GetTree().CurrentScene.Name != "LoseScreen")
         {
-            List<Demon> dtd = new List<Demon>();
             foreach (Demon d in demons)
             {
-                dtd.Add(d);
-            }
-            
-            foreach(Demon d in dtd) {
                 d.Destroy();
-                RemoveDemon(d);
             }
+
             GD.Print("All sheep dead, game over");
+            inPlay = false;
+
+            // Temp fix
+            Fence.Fences.Clear();
+            sleepCount = 0;
+            sheep.Clear();
+            demons.Clear();
+
+            GetTree().ReloadCurrentScene();
             GetTree().ChangeScene("res://UI/LoseScreen.tscn");
+            
         }
-        GD.Print($"Sheep Count: {sheepCount}");
     }
 }

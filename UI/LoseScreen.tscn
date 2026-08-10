@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://UI/Godot-Fontpack/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/connection_ii/ConnectionII.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://UI/LoseScreen.cs" type="Script" id=2]
@@ -9,9 +9,16 @@
 [ext_resource path="res://Sounds/bleep-effect.mp3" type="AudioStream" id=7]
 [ext_resource path="res://Sounds/Sheep Single 1 - QuickSounds.com.mp3" type="AudioStream" id=8]
 [ext_resource path="res://Sounds/jump-retro-game-jam-fx-1-00-03.mp3" type="AudioStream" id=9]
+[ext_resource path="res://Scenery/sceneryTile.png" type="Texture" id=10]
+[ext_resource path="res://Scenery/fences_b.png" type="Texture" id=11]
+
+[sub_resource type="DynamicFont" id=13]
+size = 78
+outline_size = 1
+font_data = ExtResource( 1 )
 
 [sub_resource type="DynamicFont" id=1]
-size = 43
+size = 35
 outline_size = 1
 font_data = ExtResource( 1 )
 
@@ -21,9 +28,119 @@ outline_size = 1
 extra_spacing_char = 3
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFont" id=2]
-size = 28
+[sub_resource type="TileSet" id=4]
+0/name = "sceneryTile.png 0"
+0/texture = ExtResource( 10 )
+0/tex_offset = Vector2( 0, 0 )
+0/modulate = Color( 1, 1, 1, 1 )
+0/region = Rect2( 0, -32, 64, 64 )
+0/tile_mode = 0
+0/occluder_offset = Vector2( 0, 0 )
+0/navigation_offset = Vector2( 0, 0 )
+0/shape_offset = Vector2( 0, 0 )
+0/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+0/shape_one_way = false
+0/shape_one_way_margin = 0.0
+0/shapes = [  ]
+0/z_index = 0
+1/name = "sceneryTile.png 1"
+1/texture = ExtResource( 10 )
+1/tex_offset = Vector2( 0, 0 )
+1/modulate = Color( 1, 1, 1, 1 )
+1/region = Rect2( 0, 0, 32, 32 )
+1/tile_mode = 0
+1/occluder_offset = Vector2( 0, 0 )
+1/navigation_offset = Vector2( 0, 0 )
+1/shape_offset = Vector2( 0, 0 )
+1/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+1/shape_one_way = false
+1/shape_one_way_margin = 0.0
+1/shapes = [  ]
+1/z_index = 0
+2/name = "sceneryTile.png 2"
+2/texture = ExtResource( 10 )
+2/tex_offset = Vector2( 0, 0 )
+2/modulate = Color( 1, 1, 1, 1 )
+2/region = Rect2( 32, 0, 32, 32 )
+2/tile_mode = 0
+2/occluder_offset = Vector2( 0, 0 )
+2/navigation_offset = Vector2( 0, 0 )
+2/shape_offset = Vector2( 0, 0 )
+2/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+2/shape_one_way = false
+2/shape_one_way_margin = 0.0
+2/shapes = [  ]
+2/z_index = 0
+3/name = "sceneryTile.png 3"
+3/texture = ExtResource( 10 )
+3/tex_offset = Vector2( 0, 0 )
+3/modulate = Color( 1, 1, 1, 1 )
+3/region = Rect2( 0, 32, 32, 32 )
+3/tile_mode = 0
+3/occluder_offset = Vector2( 0, 0 )
+3/navigation_offset = Vector2( 0, 0 )
+3/shape_offset = Vector2( 0, 0 )
+3/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+3/shape_one_way = false
+3/shape_one_way_margin = 0.0
+3/shapes = [  ]
+3/z_index = 0
+4/name = "sceneryTile.png 4"
+4/texture = ExtResource( 10 )
+4/tex_offset = Vector2( 0, 0 )
+4/modulate = Color( 1, 1, 1, 1 )
+4/region = Rect2( 32, 32, 32, 32 )
+4/tile_mode = 0
+4/occluder_offset = Vector2( 0, 0 )
+4/navigation_offset = Vector2( 0, 0 )
+4/shape_offset = Vector2( 0, 0 )
+4/shape_transform = Transform2D( 1, 0, 0, 1, 0, 0 )
+4/shape_one_way = false
+4/shape_one_way_margin = 0.0
+4/shapes = [  ]
+4/z_index = 0
+
+[sub_resource type="DynamicFont" id=5]
+size = 61
+extra_spacing_char = 3
 font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.0862745, 0.0196078, 0.141176, 1 )
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.54902, 0.54902, 0.666667, 1 )
+
+[sub_resource type="DynamicFont" id=8]
+size = 61
+extra_spacing_char = 3
+font_data = ExtResource( 1 )
+
+[sub_resource type="AtlasTexture" id=9]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 384, 0, 192, 192 )
+
+[sub_resource type="SpriteFrames" id=10]
+animations = [ {
+"frames": [ SubResource( 9 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="AtlasTexture" id=11]
+flags = 4
+atlas = ExtResource( 11 )
+region = Rect2( 192, 0, 192, 192 )
+
+[sub_resource type="SpriteFrames" id=12]
+animations = [ {
+"frames": [ SubResource( 11 ), SubResource( 9 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
 
 [node name="LoseScreen" type="Control"]
 anchor_right = 1.0
@@ -45,16 +162,16 @@ anchor_bottom = 1.0
 
 [node name="Label" type="Label" parent="."]
 anchor_left = 0.5
-anchor_top = 0.174
+anchor_top = 0.108
 anchor_right = 0.5
-anchor_bottom = 0.174
-margin_left = -233.0
-margin_right = 233.0
-margin_bottom = 56.0
+anchor_bottom = 0.108
+margin_left = -418.5
+margin_right = 418.5
+margin_bottom = 131.0
 custom_colors/font_color = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_outline_modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_color_shadow = Color( 0.54902, 0.54902, 0.666667, 1 )
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 13 )
 text = "YOUR SHEEP ARE DEAD"
 align = 1
 valign = 1
@@ -65,9 +182,9 @@ anchor_top = 0.466
 anchor_right = 0.5
 anchor_bottom = 0.466
 margin_left = -500.0
-margin_top = -28.0
+margin_top = -22.0
 margin_right = 500.0
-margin_bottom = 28.0
+margin_bottom = 34.0
 custom_colors/font_color = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_outline_modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_colors/font_color_shadow = Color( 0.54902, 0.54902, 0.666667, 1 )
@@ -91,32 +208,10 @@ custom_colors/font_color_shadow = Color( 0.54902, 0.54902, 0.666667, 1 )
 custom_fonts/font = SubResource( 3 )
 text = "Place Holder"
 
-[node name="RetryButton" type="Button" parent="."]
-anchor_left = 0.5
-anchor_top = 0.68
-anchor_right = 0.5
-anchor_bottom = 0.68
-margin_left = -47.0
-margin_top = -35.0
-margin_right = 47.0
-custom_fonts/font = SubResource( 2 )
-text = "RETRY"
-
-[node name="MenuButton" type="Button" parent="."]
-anchor_left = 0.5
-anchor_top = 0.781
-anchor_right = 0.5
-anchor_bottom = 0.781
-margin_left = -47.0
-margin_top = -35.0
-margin_right = 47.0
-custom_fonts/font = SubResource( 2 )
-text = "MENU"
-
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="Node2D"]
-position = Vector2( 256, 350 )
+position = Vector2( 640, 325 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D/KinematicBody2D"]
 autoplay = "frolic_over_fence-loop"
@@ -143,3 +238,81 @@ pitch_scale = 2.05
 [node name="JumpSoundPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 9 )
 volume_db = -30.0
+
+[node name="Scenery" type="Node2D" parent="."]
+modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
+z_index = 2
+
+[node name="TileMap" type="TileMap" parent="Scenery"]
+z_index = 2
+tile_set = SubResource( 4 )
+cell_size = Vector2( 8, 8 )
+format = 1
+tile_data = PoolIntArray( 262239, 2, 0, 262253, 1, 0, 327717, 536870914, 0, 327816, 2, 0, 393237, 2, 0, 524439, 536870914, 0, 589887, 536870914, 0, 720902, 536870914, 0, 720949, 1, 0, 786558, 1, 0, 917606, 4, 0, 917607, 3, 0, 917614, 2, 0, 1048721, 536870914, 0, 1179679, 4, 0, 1179680, 3, 0, 1179705, 536870915, 0, 1179706, 536870916, 0, 1179747, 1, 0, 1310734, 2, 0, 1310743, 2, 0, 1572956, 536870914, 0, 1572992, 2, 0, 1573001, 2, 0, 1638452, 536870914, 0, 1638518, 4, 0, 1638519, 3, 0, 1703998, 2, 0, 1769579, 1, 0, 1900586, 2, 0, 1966100, 4, 0, 1966101, 3, 0, 1966158, 4, 0, 1966159, 3, 0, 2097240, 2, 0, 2097256, 1, 0, 2097298, 2, 0, 2228345, 1, 0, 2293767, 2, 0, 2359332, 1, 0, 2359347, 536870914, 0, 2424862, 1, 0, 2490500, 536870914, 0, 2555940, 1, 0, 2621473, 1, 0, 2621556, 4, 0, 2621557, 3, 0, 2883598, 2, 0, 3014784, 2, 0, 3145769, 4, 0, 3145770, 3, 0, 3145812, 536870914, 0, 3145821, 536870915, 0, 3145822, 536870916, 0, 3211322, 536870914, 0, 3211331, 536870915, 0, 3211332, 536870916, 0, 3211416, 536870914, 0, 3342459, 2, 0, 3342478, 1, 0, 3407938, 536870914, 0, 3473433, 4, 0, 3473434, 3, 0, 3539044, 536870914, 0, 3539058, 536870914, 0, 3539083, 1, 0, 3604570, 536870915, 0, 3604571, 536870916, 0, 3670088, 536870914, 0, 3735586, 2, 0, 3866632, 2, 0, 3866681, 536870915, 0, 3866682, 536870916, 0, 3997779, 536870915, 0, 3997780, 536870916, 0, 3997841, 536870915, 0, 3997842, 3, 0, 4194399, 536870915, 0, 4194400, 536870916, 0, 4259990, 1, 0, 4325446, 536870915, 0, 4325447, 536870916, 0, 4390958, 536870914, 0, 4390973, 536870914, 0, 4391030, 1, 0, 4391040, 2, 0, 4456472, 1, 0, 4522005, 1, 0, 4587546, 1, 0, 4587550, 1, 0, 4653146, 536870914, 0, 4653203, 1, 0, 4718706, 1, 0, 4849691, 1, 0, 4915240, 536870915, 0, 4915241, 536870916, 0, 4915337, 4, 0, 4915338, 3, 0, 4980747, 536870914, 0, 5046453, 0, 0, 5374015, 536870915, 0, 5374016, 536870916, 0, 5374058, 2, 0, 5439508, 4, 0, 5439509, 3, 0, 5439618, 1, 0, 5505105, 536870915, 0, 5505106, 536870916, 0, 5570592, 4, 0, 5570593, 3, 0, 5570603, 1, 0, 5636150, 536870914, 0, 5636168, 2, 0, 5636209, 536870915, 0, 5636210, 536870916, 0, 5636221, 1, 0, 5701698, 536870915, 0, 5701699, 536870916, 0, 5701721, 536870914, 0, 5767291, 1, 0, 5832836, 1, 0, 5898248, 2, 0, 5898334, 1, 0, 5963921, 1, 0, 6094907, 1, 0, 6094951, 2, 0, 6225946, 2, 0, 6225981, 1, 0, 6291514, 1, 0, 6357080, 4, 0, 6357081, 3, 0, 6357137, 536870915, 0, 6357138, 536870916, 0, 6422666, 536870914, 0, 6488080, 4, 0, 6488081, 3, 0, 6553716, 536870914, 0, 6684691, 1, 0, 6684748, 536870914, 0, 6750223, 1, 0, 6750251, 1, 0, 6815874, 536870914, 0, 6815882, 2, 0, 6881312, 4, 0, 6881313, 3, 0, 6881383, 2, 0, 7078008, 1, 0, 7209032, 2, 0, 7274554, 536870914, 0, 7340040, 2, 0, 7340116, 536870914, 0, 7340179, 536870915, 0, 7340180, 536870916, 0, 7405581, 536870914, 0 )
+
+[node name="ButtonOutline" type="ColorRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 225.0
+margin_top = 85.9999
+margin_right = 435.0
+margin_bottom = 158.0
+color = Color( 0.54902, 0.54902, 0.666667, 1 )
+
+[node name="RetryButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.689
+anchor_right = 0.5
+anchor_bottom = 0.689
+margin_left = 230.0
+margin_top = -90.4401
+margin_right = 430.0
+margin_bottom = -28.4401
+custom_colors/font_color = Color( 0.00784314, 0.0196078, 0.141176, 1 )
+custom_colors/font_color_hover = Color( 0.54902, 0.54902, 0.666667, 1 )
+custom_fonts/font = SubResource( 5 )
+custom_styles/hover = SubResource( 6 )
+custom_styles/normal = SubResource( 7 )
+text = "RETRY"
+
+[node name="ButtonOutline2" type="ColorRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 225.0
+margin_top = 236.0
+margin_right = 435.0
+margin_bottom = 308.0
+color = Color( 0.54902, 0.54902, 0.666667, 1 )
+
+[node name="MenuButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.689
+anchor_right = 0.5
+anchor_bottom = 0.689
+margin_left = 230.0
+margin_top = 59.56
+margin_right = 430.0
+margin_bottom = 121.56
+custom_colors/font_color = Color( 0.00784314, 0.0196078, 0.141176, 1 )
+custom_colors/font_color_hover = Color( 0.54902, 0.54902, 0.666667, 1 )
+custom_fonts/font = SubResource( 8 )
+custom_styles/hover = SubResource( 6 )
+custom_styles/normal = SubResource( 7 )
+text = "MENU"
+
+[node name="Node2D2" type="Node2D" parent="."]
+modulate = Color( 0.54902, 0.54902, 0.666667, 1 )
+position = Vector2( 640, 397 )
+scale = Vector2( 0.207, 0.207 )
+
+[node name="Sprite" type="AnimatedSprite" parent="Node2D2"]
+position = Vector2( 80, 0 )
+frames = SubResource( 10 )
+
+[node name="Sprite2" type="AnimatedSprite" parent="Node2D2"]
+position = Vector2( -85.915, 0 )
+frames = SubResource( 12 )

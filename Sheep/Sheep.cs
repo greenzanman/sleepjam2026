@@ -242,10 +242,6 @@ public class Sheep : SleepNode
             rebellionTimer -= delta;
             rebelliousIndicator.Visible = (int) (rebellionTimer * GameSettings.FlashRate) % 2 == 1;
         }
-
-#if DEBUG
-        Update();
-#endif
     }
 
     protected override void UpdateGameState(GameState newGameState)
@@ -601,17 +597,4 @@ public class Sheep : SleepNode
             }
         }
     }
-#if DEBUG
-    public override void _Draw()
-    {
-        base._Draw();
-        if (GameManager.DebugDraw)
-        {
-            Color debugColor = state == SheepState.Fleeing ? Colors.Red : 
-            ( state == SheepState.Idle ? Colors.Blue : Colors.Purple);
-
-            DrawLine(Vector2.Zero, stateDirection * stateSpeed * stateTimer, debugColor);
-        }
-    }
-#endif // #if DEBUG
 }

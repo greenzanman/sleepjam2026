@@ -23,11 +23,13 @@ public class Sheep : SleepNode
     // Being cursed
     public bool cursed = false; // Will not be attacked by demons
     private Node2D cursedIndicator;
+    private Node2D cursedIndicatorBack;
 
     // Rebellious
     public bool rebellious = false;
     private float rebellionTimer = 0;
     private Node2D rebelliousIndicator;
+    private Node2D rebelliousIndicatorBack;
     private float rebellionRange = 150;
     private const float rebelliousSpeed = 75;
     private double rebellionChance = 0.5; // Chance sheep in range rebells
@@ -105,6 +107,8 @@ public class Sheep : SleepNode
         cursedIndicator = GetNode<Node2D>("SpritePosition/CursedIndicator");
         rebelliousIndicator = GetNode<Node2D>("SpritePosition/RebelliousIndicator");
 
+        cursedIndicatorBack = GetNode<Node2D>("SpritePosition/CursedIndicatorBack");
+        rebelliousIndicatorBack = GetNode<Node2D>("SpritePosition/RebelliousIndicatorBack");
         base._Ready();
         GameManager.AddSheep(this);
         EnterNewState(SheepState.Idle);
@@ -207,6 +211,8 @@ public class Sheep : SleepNode
             sheepSpriteBack.Modulate = GameSettings.colorDark;
             cursedIndicator.Modulate = GameSettings.colorLight;
             rebelliousIndicator.Modulate = GameSettings.colorLight;
+            cursedIndicatorBack.Modulate = GameSettings.colorDark;
+            rebelliousIndicatorBack.Modulate = GameSettings.colorDark;
         }
         else
         {
@@ -214,6 +220,8 @@ public class Sheep : SleepNode
             sheepSpriteBack.Modulate = GameSettings.colorLight;
             cursedIndicator.Modulate = GameSettings.colorDark;
             rebelliousIndicator.Modulate = GameSettings.colorDark;
+            cursedIndicatorBack.Modulate = GameSettings.colorLight;
+            rebelliousIndicatorBack.Modulate = GameSettings.colorLight;
         }
     }
 

@@ -10,9 +10,11 @@ public class Player : SleepNode
     private const float ACCELERATION = 5000;
     private const float MAXSPEED = 400;
 
-    Node2D sprite;
+    Sprite spriteFront;
+    Sprite spriteBack;
 
     // Awake state
+    const float overallPadding = 10;
     const float barkCooldown = 0.5f;
     const float barkInputBufferWindow = 0.12f;
     const float fakeBarkBuffer = 0.05f; // Bar is slightly slower so it 'feels' better
@@ -29,7 +31,8 @@ public class Player : SleepNode
 
     public override void _Ready()
     {
-        sprite = GetNode<Node2D>("Polygon2D");
+        spriteFront = GetNode<Sprite>("SpriteFront");
+        spriteBack = GetNode<Sprite>("SpriteBack");
         base._Ready();
         GameManager.SetPlayer(this);
         
@@ -44,9 +47,30 @@ public class Player : SleepNode
 
     }
 
+    const int animationRate = 4;
     protected override void Process(float delta)
     {
         ProcessMovement(delta);
+
+        // Animation
+        int frame = 0;
+        
+        float currentSpeed = velocity.Length();
+        if (currentSpeed > 5)
+        {
+            frame = ((int) (GameManager.GetGameTime() * animationRate * 2)) % 5 + 8;
+            if (barkTimer > 0)
+                frame += 8;
+        }
+        else
+        {
+            frame = ((int) (GameManager.GetGameTime() * animationRate)) % 3;
+            if (barkTimer > 0)
+                frame += 4;
+        }
+
+        spriteFront.Frame = frame;
+        spriteBack.Frame = frame;
 
         Update(); // TODO: Build this into sprite or something
     }
@@ -55,11 +79,13 @@ public class Player : SleepNode
     {
         if (awake)
         {
-            sprite.Modulate = GameSettings.colorLight;
+            spriteFront.Modulate = GameSettings.colorLight;
+            spriteBack.Modulate = GameSettings.colorDark;
         }
         else
         {
-            sprite.Modulate = GameSettings.colorDark;
+            spriteFront.Modulate = GameSettings.colorDark;
+            spriteBack.Modulate = GameSettings.colorLight;
         }
     }
 
@@ -76,7 +102,20 @@ public class Player : SleepNode
         }
 
         velocity = Utils.MoveTowards(velocity, movementInput * MAXSPEED, ACCELERATION * delta);
-        Position += velocity * delta;
+        Vector2 newPosition = Position + velocity * delta;
+        if (newPosition.x > GameSettings.ScreenWidth - overallPadding)
+            newPosition.x = GameSettings.ScreenWidth - overallPadding;
+        if (newPosition.x < overallPadding)
+            newPosition.x = overallPadding;
+        if (newPosition.y > GameSettings.ScreenHeight - overallPadding)
+            newPosition.y = GameSettings.ScreenHeight - overallPadding;
+        if (newPosition.y < overallPadding)
+            newPosition.y = overallPadding;
+
+        Position = newPosition;
+
+        spriteFront.FlipH = velocity.x < 0;
+        spriteBack.FlipH = velocity.x < 0;
         // TODO: Keep within boundaries
 
     }
@@ -115,6 +154,8 @@ public class Player : SleepNode
 
     protected override void ProcessDreaming(float delta)
     {
+        // Reuse barktimer for sprite visuals
+        barkTimer = Mathf.Max(-10, barkTimer - delta);
         Demon closestDemon = null;
         float closestDistance = biteRange;
 
@@ -145,6 +186,7 @@ public class Player : SleepNode
 
             if (closestDemon != null)
             {
+                barkTimer = barkCooldown;
                 closestDemon.Bite();
                 audioBark.Stop();
                 audioBark.PitchScale = 0.6f + (float) random.NextDouble() * 0.3f;

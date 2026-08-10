@@ -30,7 +30,7 @@ public class GameManager : Node
     private GameState gameState = GameState.Awake;
     // Increments whenever a sheep jumps
     private float sleepCount = 0;
-    public const int MAX_SLEEPCOUNT = 16;
+    public const int MAX_SLEEPCOUNT = 20;
     private float wakeRate = 1; // Increases once there are no demons
     private bool cyclePaused = false;
 

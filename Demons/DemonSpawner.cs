@@ -109,7 +109,8 @@ public class DemonSpawner : SleepNode
             sheepCount = 100;
 
         // After night 4, rebellious sheep can bump up numbers
-        bool shouldSpawnRebelliousSheep = nightCount >= rebelliousNight && sheepCount >= GameSettings.defaultSheep && sheepCount < GameSettings.maxSheep;
+        bool shouldSpawnRebelliousSheep = nightCount >= rebelliousNight && sheepCount >= GameSettings.defaultSheep && sheepCount < GameSettings.maxSheep
+            && random.Next(2) == 1;
         bool shouldSpawnNormalSheep = sheepCount < GameSettings.defaultSheep;
 
         // After rebellious night * 2, only rebellious sheep

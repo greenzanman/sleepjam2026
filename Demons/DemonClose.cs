@@ -4,7 +4,9 @@ using System;
 // Only becomes damagable when it gets close enough to a sheep
 public class DemonClose : DemonBasic
 {
-    public const float vulnerabilityDistance = 300;
+    public const float vulnerabilityDistance = 160;
+    const int angleCount = 64;
+    private Vector2[] anglePoints = new Vector2[angleCount + 1];
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -15,6 +17,13 @@ public class DemonClose : DemonBasic
         travelSpeed = 40; // Slightly slower
 
         Bitable = false;
+
+        float radius = vulnerabilityDistance;
+        for (int i = 0; i <= angleCount; i++)
+        {
+            float angle = Mathf.Pi * 2 / angleCount * i;
+            anglePoints[i] = new Vector2(radius * -Mathf.Cos(angle), radius * Mathf.Sin(angle));
+        }
     }
 
     protected override void ProcessAwake(float delta)
@@ -36,11 +45,23 @@ public class DemonClose : DemonBasic
         if (hitTimer <= 0)
         {
 
-        spriteFront.Texture = !Bitable ? hiddenFront : visibleFront;
-        spriteBack.Texture = !Bitable ? hiddenBack : visibleBack;
+            spriteFront.Texture = !Bitable ? hiddenFront : visibleFront;
+            spriteBack.Texture = !Bitable ? hiddenBack : visibleBack;
         }
+
+        Update();
     }
 
     // Unbiteableness is set in Demon.cs ProcessDreaming
+    public override void _Draw()
+    {
+        base._Draw();
+
+        if (!Bitable)
+        {
+            DrawMultiline(anglePoints, GameSettings.colorDark,
+                3);
+        }
+    }
 
 }

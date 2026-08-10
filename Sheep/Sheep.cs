@@ -275,6 +275,7 @@ public class Sheep : SleepNode
             // Flee from bark source
             case SheepState.Fleeing:
                 audioBaah.Stop();
+                audioBaah.PitchScale = 0.8f + (float) random.NextDouble() * 0.3f;
                 audioBaah.Play();
                 ProcessFleeing(delta);
             break;
@@ -349,6 +350,7 @@ public class Sheep : SleepNode
         if (!onFence && nowOnFence)
         {
             audioJump.Stop();
+            audioJump.PitchScale = 0.95f + (float) random.NextDouble() * 0.1f;
             audioJump.Play();
             Node2D sparkle = sparkleScene.Instance<Node2D>();
             sparkle.Position = Position + new Vector2(random.Next(-40, 40),

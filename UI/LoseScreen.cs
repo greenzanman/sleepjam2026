@@ -34,6 +34,7 @@ public class LoseScreen : Control
 
     private void OnRetryButtonPressed()
     {
+        GameManager.SetNightCount(2); // Start on night 2 on retries
         GetTree().ChangeSceneTo(gameScene);
     }
 

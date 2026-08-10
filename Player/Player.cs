@@ -11,6 +11,8 @@ public class Player : SleepNode
     private const float ACCELERATION = 5000;
     private const float MAXSPEED = 400;
 
+    Node2D sprite;
+
     // Awake state
     const float barkCooldown = 0.5f;
     const float barkInputBufferWindow = 0.12f;
@@ -19,12 +21,27 @@ public class Player : SleepNode
     float barkTimer = 0;
     float barkInputBufferTimer = 0;
 
+    float misTimer = 0;
+    const float biteRange = 100;
+    const float misDisplayDuration = 0.5f;
+    const int angleCount = 64;
+    Vector2[] anglePoints = new Vector2[angleCount + 1];
+
     public override void _Ready()
     {
+        sprite = GetNode<Node2D>("Polygon2D");
         base._Ready();
         GameManager.SetPlayer(this);
         
         audioBark = GetNode<AudioStreamPlayer>(audioBarkPath);
+
+        float radius = biteRange - 20;
+        for (int i = 0; i <= angleCount; i++)
+        {
+            float angle = Mathf.Pi * 2 / angleCount * i;
+            anglePoints[i] = new Vector2(radius * -Mathf.Cos(angle), radius * Mathf.Sin(angle));
+        }
+
     }
 
     protected override void Process(float delta)
@@ -33,6 +50,19 @@ public class Player : SleepNode
 
         Update(); // TODO: Build this into sprite or something
     }
+
+    protected override void SetModulate(bool awake)
+    {
+        if (awake)
+        {
+            sprite.Modulate = GameSettings.colorLight;
+        }
+        else
+        {
+            sprite.Modulate = GameSettings.colorDark;
+        }
+    }
+
 
     private void ProcessMovement(float delta)
     {
@@ -74,16 +104,24 @@ public class Player : SleepNode
         }
     }
 
+    protected override void UpdateGameState(GameState newGameState)
+    {
+        base.UpdateGameState(newGameState);
+ 
+        barkTimer = 0;
+        misTimer = 0;
+    }
+
     protected override void ProcessDreaming(float delta)
     {
         Demon closestDemon = null;
-        float closestDistance = 100;
+        float closestDistance = biteRange;
         if (Input.IsActionJustPressed("key_action"))
         {
             // TODO: Improve performance of all these iteration distance checks
             foreach (Demon demon in GameManager.GetDemons())
             {
-                if (!demon.IsAlive || !demon.Bitable)
+                if (!demon.IsAlive || !demon.Bitable || demon.IsHurt())
                     continue;
                     
                 float distance = (demon.Position - Position).Length();
@@ -93,17 +131,35 @@ public class Player : SleepNode
                     closestDemon = demon;
                 }
             }
+
+            if (closestDemon != null)
+            {
+                closestDemon.Bite();
+            }
+            else
+            {
+                misTimer = misDisplayDuration;
+            }
         }
-        if (closestDemon != null)
-        {
-            closestDemon.Bite();
-        }
+
+        misTimer = Mathf.Max(misTimer - delta, 0);
     }
 
     public override void _Draw()
     {
         base._Draw();
-        float fill = 60 * Mathf.Max(barkTimer + fakeBarkBuffer, 0) / (barkCooldown + fakeBarkBuffer);
-        DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), Colors.Purple, 5);
+        if (currentGameState == GameState.Awake)
+        {
+            float fill = 60 * Mathf.Max(barkTimer + fakeBarkBuffer, 0) / (barkCooldown + fakeBarkBuffer);
+            DrawLine(new Vector2(-30, -30), new Vector2(-30 + fill, -30), GameSettings.colorDark, 5);
+        }
+        else
+        {
+            if (misTimer > 0 && (int)(misTimer * GameSettings.FlashRate) % 2 == 0)
+            {
+                DrawMultiline(anglePoints, GameSettings.colorDark,
+                    3);
+            }
+        }
     }
 }

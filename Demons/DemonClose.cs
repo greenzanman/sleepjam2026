@@ -4,7 +4,7 @@ using System;
 // Only becomes damagable when it gets close enough to a sheep
 public class DemonClose : DemonBasic
 {
-    public const float vulnerabilityDistance = 250;
+    public const float vulnerabilityDistance = 300;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -21,12 +21,12 @@ public class DemonClose : DemonBasic
     {        
         base.ProcessAwake(delta);
 
-        if (!Bitable)
-        {
-            // Flicker to show invulnerability
-            Modulate = (int)(GameManager.GetGameTime() * 3) % 2 == 1 ? 
-                GameSettings.colorLight : GameSettings.colorDark;
-        }
+        // if (!Bitable)
+        // {
+        //     // Flicker to show invulnerability
+        //     // Modulate = (int)(GameManager.GetGameTime() * 3) % 2 == 1 ? 
+        //     //     GameSettings.colorLight : GameSettings.colorDark;
+        // }
     }
 
     protected override void ProcessDreaming(float delta)
@@ -35,16 +35,9 @@ public class DemonClose : DemonBasic
     
         if (hitTimer <= 0)
         {
-            if (!Bitable)
-            {
-                // Flicker to show invulnerability
-                Modulate = (int)(GameManager.GetGameTime() * 3) % 2 == 1 ? 
-                    GameSettings.colorLight : GameSettings.colorDark;
-            }
-            else
-            {
-                Modulate = GameSettings.colorDark;
-            }
+
+        spriteFront.Texture = !Bitable ? hiddenFront : visibleFront;
+        spriteBack.Texture = !Bitable ? hiddenBack : visibleBack;
         }
     }
 

@@ -28,6 +28,10 @@ public partial class Demon : SleepNode
     
     
 
+    protected static Texture hiddenFront = GD.Load<Texture>("res://Demons/wolf-fadeyFront.png");
+    protected static Texture hiddenBack = GD.Load<Texture>("res://Demons/wolf-fadeyBack.png");
+    protected static Texture visibleFront = GD.Load<Texture>("res://Demons/wolfFront.png");
+    protected static Texture visibleBack = GD.Load<Texture>("res://Demons/wolfBack.png");
     public override void _Ready()
     {
         GameManager.AddDemon(this);   
@@ -60,6 +64,10 @@ public partial class Demon : SleepNode
         QueueFree();
     }
 
+    public bool IsHurt()
+    {
+        return hitTimer > 0;
+    }
     public void Bite()
     {
         hp -= 1;
@@ -108,7 +116,7 @@ public partial class Demon : SleepNode
         if (hitTimer > 0)
         {
             hitTimer -= delta;
-            Modulate = (int)(hitTimer * GameSettings.FlashRate) % 2 == 1 ? GameSettings.colorLight : GameSettings.colorDark;
+            SetModulate((int)(hitTimer * GameSettings.FlashRate) % 2 == 1);
         }
         else
         {
@@ -167,6 +175,8 @@ public partial class Demon : SleepNode
                 (Position, dist) = Utils.MoveTowardsReturnDistance(Position,
                     targetSheep.Position, travelSpeed * delta);
 
+                Scale = new Vector2(targetSheep.Position.x > Position.x ? -1 : 1, 1);
+
                 // A bit messy, but better than copying code into DemonClose.cs
                 if (this is DemonClose demonClose)
                 {
@@ -188,7 +198,7 @@ public partial class Demon : SleepNode
                 }
             }
 
-            Modulate = GameSettings.colorDark;
+            SetModulate(false);
         }   
     }
 

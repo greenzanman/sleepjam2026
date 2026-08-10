@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/wolf-snarl.mp3-c1fa5ba81e61e1b4030ec44211e0d671.mp3str"
+
+[deps]
+
+source_file="res://Sounds/wolf-snarl.mp3"
+dest_files=[ "res://.import/wolf-snarl.mp3-c1fa5ba81e61e1b4030ec44211e0d671.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

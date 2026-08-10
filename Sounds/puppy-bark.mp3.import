@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/puppy-bark.mp3-97ab1bd07ed9941045244cf04ed19768.mp3str"
+
+[deps]
+
+source_file="res://Sounds/puppy-bark.mp3"
+dest_files=[ "res://.import/puppy-bark.mp3-97ab1bd07ed9941045244cf04ed19768.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0

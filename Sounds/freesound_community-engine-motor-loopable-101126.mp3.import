@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/freesound_community-engine-motor-loopable-101126.mp3-6f0f235322547fe5dca7906dc0d215c8.mp3str"
+
+[deps]
+
+source_file="res://Sounds/freesound_community-engine-motor-loopable-101126.mp3"
+dest_files=[ "res://.import/freesound_community-engine-motor-loopable-101126.mp3-6f0f235322547fe5dca7906dc0d215c8.mp3str" ]
+
+[params]
+
+loop=false
+loop_offset=0
